@@ -1,4 +1,4 @@
-package net.ddns.celestgames.isometric_graphics;
+package net.ddns.celestgames.isometric_graphics.game;
 
 public class Cube {
     private int x;
@@ -8,32 +8,8 @@ public class Cube {
     private int dirY;
 
     public Cube() {
-        this.x = 0;
-        this.y = 0;
-
         this.offsetY = 0;
         this.dirY = 1;
-    }
-
-    public Cube(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
     }
 
     public int getOffsetY() {
