@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="480.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.MapCreator">
+    <right>
+        <VBox prefHeight="455.0" prefWidth="220.0" BorderPane.alignment="CENTER">
+            <Label text="Map Settings :" />
+         <CheckBox fx:id="gridShown" mnemonicParsing="false" text="Show grid" />
+         <Separator prefHeight="25.0" prefWidth="158.0" />
+         <CheckBox fx:id="showLights" mnemonicParsing="false" text="testLights" />
+         <Label text="Mouse light force" />
+         <Slider fx:id="lightForce" />
+            <Separator prefHeight="25.0" prefWidth="158.0" />
+            <Label text="Tiles :" />
+          <ScrollPane prefHeight="212.0" prefWidth="220.0">
+            <GridPane fx:id="tileList" prefHeight="32.0" prefWidth="32.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+            </GridPane>
+          </ScrollPane>
+        </VBox>
+    </right>
+    <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <Menu mnemonicParsing="false" text="File">
+          <MenuItem mnemonicParsing="false" text="Close" />
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+          <MenuItem mnemonicParsing="false" text="Delete" />
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <MenuItem mnemonicParsing="false" text="About" />
+        </Menu>
+      </MenuBar>
+    </top>
+   <center>
+      <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <content>
+               <Canvas fx:id="canvas" focusTraversable="true" height="374.0" width="465.0" />
+         </content>
+      </ScrollPane>
+   </center>
+</BorderPane>
