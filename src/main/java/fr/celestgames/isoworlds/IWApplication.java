@@ -12,7 +12,7 @@ public class IWApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("scenes/mapcreator.fxml"));
 
-        Scene scene = new Scene(fxmlLoader.load(), 720, 480);
+        Scene scene = new Scene(fxmlLoader.load(), 1080, 720);
         stage.setTitle("IsoWorlds map creator");
         stage.setScene(scene);
         stage.show();
