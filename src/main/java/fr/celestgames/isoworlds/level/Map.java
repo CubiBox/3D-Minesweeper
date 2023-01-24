@@ -1,6 +1,10 @@
 package fr.celestgames.isoworlds.level;
 
+import fr.celestgames.isoworlds.minesweeper.Demineur;
+
 public class Map {
+
+    private Demineur demineur;
     private MapLayer[] layers;
     private final int width;
     private final int height;
@@ -36,6 +40,14 @@ public class Map {
         temp[layers.length] = new MapLayer(this.width, this.height);
 
         layers = temp;
+    }
+
+    public Demineur getDemineur() {
+        return demineur;
+    }
+
+    public void setDemineur(Demineur demineur) {
+        this.demineur = demineur;
     }
 
     public int getHeight() {

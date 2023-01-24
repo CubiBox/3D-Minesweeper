@@ -4,15 +4,13 @@ import fr.celestgames.isoworlds.IWApplication;
 import fr.celestgames.isoworlds.level.Map;
 import fr.celestgames.isoworlds.level.Tile;
 import fr.celestgames.isoworlds.level.TileType;
-import javafx.event.ActionEvent;
+import fr.celestgames.isoworlds.minesweeper.Demineur;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -24,7 +22,6 @@ import java.util.ResourceBundle;
 import java.util.Scanner;
 
 public class MapCreator implements Initializable {
-
     public Canvas canvas;
     public GridPane tileList;
     public CheckBox gridShown;
@@ -38,8 +35,10 @@ public class MapCreator implements Initializable {
     private final HashMap<String, ImageView> normalSprites = new HashMap<>();
     private String selectedTile = null;
 
-    private Map currentMap = new Map(100, 100);
+
+    private Map currentMap;
     private int currentLayer = 0;
+
 
     private final double TILE_SIZE = 32;
     private final double TILE_SIZE_HALF = TILE_SIZE / 2;
@@ -61,9 +60,16 @@ public class MapCreator implements Initializable {
         Map map = new Map(width, height);
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                map.getLayer(0).setTile(i, j, new Tile("cube", type));
+                map.getLayer(0).setTile(i, j, new Tile(type));
             }
         }
+        return map;
+    }
+
+    public static Map createMinedMap(int width, int height) {
+        Map map = new Map(width, height);
+        map.setDemineur(new Demineur(map.getLayer(0).getTiles()));
+
         return map;
     }
 
@@ -73,10 +79,11 @@ public class MapCreator implements Initializable {
         if (gridTileIS != null) {
             gridTile = new ImageView(new javafx.scene.image.Image(gridTileIS));
         }
+        currentMap = createMinedMap(20, 20);
+
         canvas.setWidth(currentMap.getWidth() * TILE_SIZE);
         canvas.setHeight(currentMap.getHeight() * TILE_SIZE);
 
-        //currentMap = createFilledMap(100, 100, TileType.VOID);
         xOffset = canvas.getWidth() / 2;
 
         try {
@@ -144,10 +151,15 @@ public class MapCreator implements Initializable {
                         gc.drawImage(tileSprites.get(selectedTile).getImage(), posX, posY);
                     } else {
                         Tile tile = currentMap.getLayer(layer).getTile(x, y);
-                        ImageView tileSprite = tileSprites.get(tile.getId());
+                        ImageView tileSprite = tileSprites.get(tile.getStrValue());
                         if (tileSprite != null) {
                             gc.drawImage(tileSprite.getImage(), posX, posY);
-                        } else if (layer == 0 && gridShown.isSelected()) {
+                            if (tile.getNbMine() > 0){
+                                ImageView numberSprite = tileSprites.get(String.valueOf(tile.getNbMine()));
+                                gc.drawImage(numberSprite.getImage(), posX, posY);
+                            }
+                        }
+                        else if (layer == 0 && gridShown.isSelected()) {
                             gc.drawImage(gridTile.getImage(), posX, posY);
                         }
                     }
@@ -157,8 +169,6 @@ public class MapCreator implements Initializable {
     }
 
     public void updateMap(MouseEvent event) {
-        if (selectedTile == null) return;
-
         double x = event.getX() - xOffset;
         double y = event.getY();
 
@@ -166,7 +176,11 @@ public class MapCreator implements Initializable {
         int posY = (int) (x * C1 + y * D1);
 
         if (posX >= 0 && posY >= 0 && posX < currentMap.getWidth() && posY < currentMap.getHeight()) {
-            currentMap.getLayer(currentLayer).setTile(posX, posY, new Tile(selectedTile, TileType.VOID));
+            if (selectedTile == null){
+                currentMap.getDemineur().revele(posY, posX);
+            }
+            else
+                currentMap.getLayer(currentLayer).setTile(posX, posY, new Tile(TileType.VOID));
         }
     }
 }

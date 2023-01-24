@@ -1,39 +1,59 @@
 package fr.celestgames.isoworlds.level;
 
 public class Tile {
-    private int x;
-    private int y;
-    private final String id;
+    private TileType value;
+    private boolean isReveled;
+    private boolean isBomb;
+    private int nbMine;
 
-    private final TileType type;
 
-    public Tile(String id, TileType type) {
-        this.id = id;
-        this.type = type;
+    public Tile(TileType value) {
+        this.value = value;
+        this.isReveled = false;
+        this.isBomb = false;
+        this.nbMine = 0;
     }
 
     public Tile() {
-        this.id = "void";
-        this.type = TileType.VOID;
+        this.value = TileType.VOID;
+        this.isReveled = false;
+        this.isBomb = false;
+        this.nbMine = 0;
     }
 
-    public String getId() {
-        return id;
+
+
+    public String getStrValue() {
+        return value.getId();
     }
 
-    public int getX() {
-        return x;
+    public void setValue(TileType t){
+        this.value = t;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public TileType getValue() {
+        return value;
     }
 
-    public int getY() {
-        return y;
+    public boolean isReveled() {
+        return isReveled;
+    }
+    public void setReveled(boolean reveled) {
+        isReveled = reveled;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public int getNbMine() {
+        return nbMine;
+    }
+    public void setNbMine(int nbMine) {
+        this.nbMine = nbMine;
+    }
+
+    public boolean isBomb() {
+        return isBomb;
+    }
+
+    public void setBomb(boolean bomb) {
+        isBomb = bomb;
     }
 }
