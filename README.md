@@ -1,5 +1,5 @@
-# isometric_graphics
-A small Java project to show what isometric graphics are
+# Minesweeper isometric
+A small Java project to make a minesweeper in isometric view
 
 
 
