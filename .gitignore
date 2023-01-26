@@ -33,3 +33,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/src/main/resources/fr/celestgames/isoworlds/textures/cube_mined_old (2).png
+/src/main/resources/fr/celestgames/isoworlds/textures/reveled_3.png
+/src/main/resources/fr/celestgames/isoworlds/textures/cube_old_old.png

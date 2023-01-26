@@ -53,7 +53,7 @@ public class Demineur {
         }
         else if (!estRevele(x,y) && !isBomb(x,y)){
             tabCase[y][x].setNbMine(nbMineNeigh(x,y));
-            tabCase[y][x].setValue(TileType.REVELED);
+            tabCase[y][x].setValue(TileType.CUBE);
             tabCase[y][x].setReveled(true);
         }
         else if (isBomb(x,y)) {

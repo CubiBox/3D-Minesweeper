@@ -40,7 +40,7 @@ public class MapCreator implements Initializable {
     private int currentLayer = 0;
 
 
-    private final double TILE_SIZE = 32;
+    private final double TILE_SIZE = 64;
     private final double TILE_SIZE_HALF = TILE_SIZE / 2;
 
     private final double A = 0.5 * TILE_SIZE;
