@@ -5,6 +5,7 @@ public class Tile {
     private boolean isReveled;
     private boolean isBomb;
     private int nbMine;
+    private boolean isMarked;
 
 
     public Tile(TileType value) {
@@ -12,6 +13,7 @@ public class Tile {
         this.isReveled = false;
         this.isBomb = false;
         this.nbMine = 0;
+        this.isMarked = false;
     }
 
     public Tile() {
@@ -19,6 +21,7 @@ public class Tile {
         this.isReveled = false;
         this.isBomb = false;
         this.nbMine = 0;
+        this.isMarked = false;
     }
 
 
@@ -55,5 +58,13 @@ public class Tile {
 
     public void setBomb(boolean bomb) {
         isBomb = bomb;
+    }
+
+    public boolean isMarked() {
+        return isMarked;
+    }
+
+    public void setMarked(boolean marked) {
+        isMarked = marked;
     }
 }

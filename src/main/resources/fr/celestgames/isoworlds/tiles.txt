@@ -2,6 +2,7 @@ cube
 cube_mined
 reveled
 void
+cube_top
 1
 2
 3

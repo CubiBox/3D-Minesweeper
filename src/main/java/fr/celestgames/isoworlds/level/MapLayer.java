@@ -3,7 +3,7 @@ package fr.celestgames.isoworlds.level;
 public class MapLayer {
     private final int width;
     private final int height;
-    private final Tile[][] tiles;
+    private Tile[][] tiles;
 
     public MapLayer(int width, int height) {
         this.width = width;
@@ -35,5 +35,9 @@ public class MapLayer {
 
     public int getHeight() {
         return height;
+    }
+
+    public void setTiles(Tile[][] tiles) {
+        this.tiles = tiles;
     }
 }

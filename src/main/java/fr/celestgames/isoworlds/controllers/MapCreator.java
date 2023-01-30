@@ -8,26 +8,31 @@ import fr.celestgames.isoworlds.minesweeper.Demineur;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.SwipeEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
 public class MapCreator implements Initializable {
     public Canvas canvas;
-    public GridPane tileList;
-    public CheckBox gridShown;
 
-    public CheckBox showLights;
-    public Slider lightForce;
+    public Button upButton;
+    public Button downButton;
+
+    public Button turnLeftButton;
+    public Button turnRightButton;
 
     private ImageView gridTile = new ImageView();
     private final HashMap<String, ImageView> tileSprites = new HashMap<>();
@@ -37,7 +42,7 @@ public class MapCreator implements Initializable {
 
 
     private Map currentMap;
-    private int currentLayer = 0;
+    private int currentLayer;
 
 
     private final double TILE_SIZE = 64;
@@ -68,7 +73,7 @@ public class MapCreator implements Initializable {
 
     public static Map createMinedMap(int width, int height) {
         Map map = new Map(width, height);
-        map.setDemineur(new Demineur(map.getLayer(0).getTiles()));
+        map.setDemineur(new Demineur(map.getLayers()));
 
         return map;
     }
@@ -79,10 +84,11 @@ public class MapCreator implements Initializable {
         if (gridTileIS != null) {
             gridTile = new ImageView(new javafx.scene.image.Image(gridTileIS));
         }
-        currentMap = createMinedMap(20, 20);
+        currentLayer = 0;
+        currentMap = createMinedMap(10, 10);
 
         canvas.setWidth(currentMap.getWidth() * TILE_SIZE);
-        canvas.setHeight(currentMap.getHeight() * TILE_SIZE);
+        canvas.setHeight(currentMap.getLayers().length * TILE_SIZE);
 
         xOffset = canvas.getWidth() / 2;
 
@@ -111,7 +117,6 @@ public class MapCreator implements Initializable {
                 });
 
                 tileSprites.put(line, tile);
-                tileList.add(tile, tileSprites.size(), 0);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,10 +124,40 @@ public class MapCreator implements Initializable {
 
         canvas.setOnMouseMoved(this::updateCanvas);
         canvas.setOnMouseClicked(this::updateMap);
+        canvas.setOnScroll(this::updateLayer);
 
+        upButton.setOnMouseClicked(this::upLayer);
+        downButton.setOnMouseClicked(this::downLayer);
+
+        lowUpdateCanvas();
+    }
+
+    private void updateLayer(ScrollEvent e) {
+        if (e.getDeltaY() > 0 && currentLayer - 1 >= 0)
+            currentLayer --;
+       else if (e.getDeltaY() < 0 && currentLayer + 1 < currentMap.getLayers().length)
+            currentLayer ++;
+        lowUpdateCanvas();
+    }
+
+    public void upLayer(MouseEvent mouseEvent) {
+        if (currentLayer - 1 >= 0)
+            currentLayer --;
+        lowUpdateCanvas();
+    }
+    public void downLayer(MouseEvent mouseEvent) {
+        if (currentLayer + 1 < currentMap.getLayers().length)
+            currentLayer ++;
+        lowUpdateCanvas();
+    }
+
+    public void lowUpdateCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        drawMap(gc, -1, -1);
     }
 
     public void updateCanvas(MouseEvent event) {
@@ -141,26 +176,25 @@ public class MapCreator implements Initializable {
     }
 
     private void drawMap(GraphicsContext gc, int mapPosX, int mapPosY) {
-        for (int layer = 0; layer < currentMap.getLayersCount(); layer++) {
+        for (int layer = currentMap.getLayersCount()-1; layer >= currentLayer; layer--) {
             for (int y = 0; y < currentMap.getHeight(); y++) {
                 for (int x = 0; x < currentMap.getWidth(); x++) {
                     int posX = (int) (x * A + y * B - TILE_SIZE_HALF + xOffset);
-                    int posY = (int) (x * C + y * D);
+                    int posY = (int) (x * C + y * D + TILE_SIZE_HALF * layer);
 
-                    if (selectedTile != null && mapPosX == x && mapPosY == y) {
-                        gc.drawImage(tileSprites.get(selectedTile).getImage(), posX, posY);
-                    } else {
-                        Tile tile = currentMap.getLayer(layer).getTile(x, y);
-                        ImageView tileSprite = tileSprites.get(tile.getStrValue());
-                        if (tileSprite != null) {
-                            gc.drawImage(tileSprite.getImage(), posX, posY);
-                            if (tile.getNbMine() > 0){
-                                ImageView numberSprite = tileSprites.get(String.valueOf(tile.getNbMine()));
-                                gc.drawImage(numberSprite.getImage(), posX, posY);
-                            }
-                        }
-                        else if (layer == 0 && gridShown.isSelected()) {
-                            gc.drawImage(gridTile.getImage(), posX, posY);
+                    Tile tile = currentMap.getLayer(layer).getTile(x, y);
+
+                    // get sprite of current tile + short if tile is top texture or not
+                    ImageView tileSprite = tileSprites.get(
+                            (layer == 0 && tile.getStrValue().equals("cube")) ?
+                                    tile.getStrValue() + "_top" : tile.getStrValue()
+                    );
+
+                    if (tileSprite != null) {
+                        gc.drawImage(tileSprite.getImage(), posX, posY);
+                        if (tile.getNbMine() > 0 && layer == currentLayer){
+                            ImageView numberSprite = tileSprites.get(String.valueOf(tile.getNbMine()));
+                            gc.drawImage(numberSprite.getImage(), posX, posY);
                         }
                     }
                 }
@@ -172,15 +206,16 @@ public class MapCreator implements Initializable {
         double x = event.getX() - xOffset;
         double y = event.getY();
 
-        int posX = (int) (x * A1 + y * B1);
-        int posY = (int) (x * C1 + y * D1);
+        int posX = (int) (x * A1 + y * B1 - currentLayer);
+        int posY = (int) (x * C1 + y * D1 - currentLayer);
 
         if (posX >= 0 && posY >= 0 && posX < currentMap.getWidth() && posY < currentMap.getHeight()) {
             if (selectedTile == null){
-                currentMap.getDemineur().revele(posY, posX);
+                currentMap.getDemineur().revele(posY, posX, currentLayer);
             }
             else
                 currentMap.getLayer(currentLayer).setTile(posX, posY, new Tile(TileType.VOID));
         }
+        updateCanvas(event);
     }
 }

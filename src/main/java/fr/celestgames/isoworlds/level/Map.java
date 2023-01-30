@@ -11,9 +11,16 @@ public class Map {
 
     public Map(int width, int height) {
         this.width = width;
-        this.height = height;
+        this.height = width;
+
+        this.layers = new MapLayer[height];
+        for (int i = 0; i < height; i ++)
+            layers[i] = new MapLayer(width,width);
+
+        /*
         this.layers = new MapLayer[1];
         this.layers[0] = new MapLayer(width, height);
+         */
     }
 
     public MapLayer[] getLayers() {
