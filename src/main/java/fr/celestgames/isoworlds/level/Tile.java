@@ -6,6 +6,7 @@ public class Tile {
     private boolean isBomb;
     private int nbMine;
     private boolean isMarked;
+    private Graphic graphic;
 
 
     public Tile(TileType value) {
@@ -14,6 +15,7 @@ public class Tile {
         this.isBomb = false;
         this.nbMine = 0;
         this.isMarked = false;
+        this.graphic = new Graphic(value.getId());
     }
 
     public Tile() {
@@ -22,16 +24,16 @@ public class Tile {
         this.isBomb = false;
         this.nbMine = 0;
         this.isMarked = false;
+        this.graphic = new Graphic(value.getId());
     }
 
-
-
-    public String getStrValue() {
-        return value.getId();
+    public String getTexture() {
+        return graphic.getTexture();
     }
 
     public void setValue(TileType t){
         this.value = t;
+        this.graphic = new Graphic(value.getId());
     }
 
     public TileType getValue() {
@@ -65,6 +67,31 @@ public class Tile {
     }
 
     public void setMarked(boolean marked) {
+        if (marked)
+            this.setGraphic(new Graphic(getTexture(),"flag"));
+        else
+            this.setGraphic(new Graphic(getTexture()));
         isMarked = marked;
+    }
+
+    public Graphic getGraphic() {
+        return graphic;
+    }
+
+    public void setGraphic(Graphic graphic) {
+        this.graphic = graphic;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + value + ']';
+    }
+
+    public boolean hasDecoration() {
+        return this.getGraphic().hasDecoration();
+    }
+
+    public String getNbMineModel() {
+        return "numbers/"+getNbMine();
     }
 }
