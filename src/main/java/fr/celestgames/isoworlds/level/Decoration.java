@@ -1,5 +1,7 @@
 package fr.celestgames.isoworlds.level;
 
+import fr.celestgames.isoworlds.controllers.Game;
+
 import java.util.Random;
 
 public class Decoration {
@@ -16,7 +18,18 @@ public class Decoration {
         if (!decoration.equals("flag")) {
             this.vx = rand.nextInt(-64 / 16, 64 / 8);
             this.vy = rand.nextInt(-64 / 16, 64 / 8);
-            this.variation = rand.nextInt(0, 2);
+            this.variation = rand.nextInt(0, Game.tileSprites.get("flag").length);
+        }
+    }
+
+    public Decoration(String decoration, String folder) {
+        Random rand = new Random();
+        this.decoration = decoration;
+        this.folder = folder;
+        if (!decoration.equals("flag")) {
+            this.vx = rand.nextInt(-64 / 16, 64 / 8);
+            this.vy = rand.nextInt(-64 / 16, 64 / 8);
+            this.variation = rand.nextInt(0, Game.tileSprites.get(getDecorationModel()).length);
         }
     }
 
@@ -33,6 +46,11 @@ public class Decoration {
 
     public void setDecoration(String decoration) {
         this.decoration = decoration;
+    }
+
+    public void setDecoration(String decoration, String folder) {
+        this.decoration = decoration;
+        this.folder = folder;
     }
 
     public int getVariation() {

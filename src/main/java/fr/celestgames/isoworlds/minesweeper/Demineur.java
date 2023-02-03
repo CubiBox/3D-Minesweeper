@@ -15,11 +15,11 @@ public class Demineur {
         this.size = layers[0].getWidth();
 
         Random rand = new Random();
-        for (int k = 0; k < height; k ++) {
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    layers[k].getTiles()[i][j].setBomb((rand.nextInt(0, 20) == 1));
-                    layers[k].getTiles()[i][j].setValue(TileType.CUBE);
+        for (int z = 0; z < height; z ++) {
+            for (int y = 0; y < size; y++) {
+                for (int x = 0; x < size; x++) {
+                    layers[z].getTiles()[y][x].setBomb((rand.nextInt(0, 20) == 1));
+                    layers[z].getTiles()[y][x].setValue(TileType.CUBE);
                 }
             }
         }

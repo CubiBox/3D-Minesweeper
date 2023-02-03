@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 
 public class Game implements Initializable {
     public Canvas canvas;
@@ -33,7 +32,8 @@ public class Game implements Initializable {
     public Button turnRightButton;
 
     private ImageView gridTile = new ImageView();
-    private final HashMap<String, ImageView> tileSprites = new HashMap<>();
+    public static HashMap<String, ImageView[]> tileSprites = new HashMap<>();
+
     private String selectedTile = null;
 
 
@@ -65,20 +65,58 @@ public class Game implements Initializable {
         return map;
     }
 
-    public void addToFileList(String line){
-        line = line.replaceAll(".png", "");
+    public ImageView getImageView(String line){
+        line = getLine(line);
         System.out.println(line);
         InputStream tileIS = IWApplication.class.getResourceAsStream("textures/" + line + ".png");
-        if (tileIS == null) return;
+        if (tileIS == null) return null;
 
         ImageView tile = new ImageView(new javafx.scene.image.Image(tileIS));
         tile.setFitWidth(32);
         tile.setFitHeight(32);
-        tileSprites.put(line, tile);
+        return tile;
+    }
+
+    public String getLine(String line){
+        return line.replaceAll(".png", "");
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        File folder = new File("D:/Divers/Eclipse/3D-D-mineur/src/main/resources/fr/celestgames/isoworlds/textures");
+        File[] listOfFiles = folder.listFiles();
+
+        String line = null;
+
+        assert listOfFiles != null;
+        for (File file : listOfFiles) {
+            if (file.isFile()) {
+                ImageView img = getImageView(file.getName());
+                if (img != null) {
+                    tileSprites.put(getLine(file.getName()), new ImageView[]{img});
+                }
+            }
+            else if (file.isDirectory()) {
+                File[] files_intern = file.listFiles();
+                line = file.getName();
+                int count = 0;
+                if (files_intern != null){
+                    ImageView[] imgs = new ImageView[files_intern.length];
+                    for (File file_intern : files_intern) {
+                        if (file_intern.isFile()) {
+                            ImageView img = getImageView(line + "/" + file_intern.getName());
+                            if (img != null) {
+                                imgs[count] = img;
+                                count++;
+                            }
+                        }
+                    }
+                    tileSprites.put(line, imgs);
+                }
+                //TODO make a count of textures to variation
+            }
+        }
+
         currentLayer = 0;
         currentMap = createMinedMap(10, 15);
         isLose = false;
@@ -87,30 +125,6 @@ public class Game implements Initializable {
         canvas.setHeight(currentMap.getLayersCount() * TILE_SIZE * 2);
 
         xOffset = canvas.getWidth() / 2;
-
-        File folder = new File("D:/Divers/Eclipse/3D-D-mineur/src/main/resources/fr/celestgames/isoworlds/textures");
-        File[] listOfFiles = folder.listFiles();
-
-        String line = null;
-        
-        assert listOfFiles != null;
-        for (File file : listOfFiles) {
-            if (file.isFile()) {
-                addToFileList(file.getName());
-            }
-            else if (file.isDirectory()) {
-                File[] files_intern = file.listFiles();
-                int count = 0;
-                assert files_intern != null;
-                for (File file_intern : files_intern) {
-                    if (file_intern.isFile()) {
-                        addToFileList(file.getName() + "/" + file_intern.getName());
-                        count ++;
-                    }
-                }
-                //TODO make a count of textures to variation
-            }
-        }
 
         canvas.setOnMouseMoved(this::updateCanvas);
         canvas.setOnMouseClicked(this::updateMap);
@@ -187,12 +201,12 @@ public class Game implements Initializable {
 
                     // get sprite of current tile + short if tile is top texture or not
 
-                    ImageView tileSprite = tileSprites.get(tile.getTexture());
+                    ImageView tileSprite = tileSprites.get(tile.getTexture())[tile.getGraphic().getVariation()];
 
                     if (tileSprite != null) {
                         gc.drawImage(tileSprite.getImage(), posX, posY);
                         if (tile.getNbMine() > 0 && layer == currentLayer && !isLose) {
-                            ImageView numberSprite = tileSprites.get(String.valueOf(tile.getNbMineModel()));
+                            ImageView numberSprite = tileSprites.get(String.valueOf(tile.getNbMineModel()))[0];
                             gc.drawImage(numberSprite.getImage(), posX, posY);
                         }
                     }
@@ -201,9 +215,9 @@ public class Game implements Initializable {
                     ImageView decoSprite = null;
                     if (!tile.isReveled()) {
                         if (tile.isMarked())
-                            gc.drawImage(tileSprites.get("flag").getImage(), posX, posY - TILE_SIZE_HALF);
+                            gc.drawImage(tileSprites.get("flag")[0].getImage(), posX, posY - TILE_SIZE_HALF);
                         else if (tile.hasDecoration()) {
-                            decoSprite = tileSprites.get(tile.getGraphic().getDecoration().getDecorationModel());
+                            decoSprite = tileSprites.get(tile.getGraphic().getDecoration().getDecorationModel())[tile.getGraphic().getDecoration().getVariation()];
                             if (decoSprite != null)
                                 gc.drawImage(decoSprite.getImage(), posX+tile.getGraphic().getDecoration().getVx(), posY - TILE_SIZE_HALF+tile.getGraphic().getDecoration().getVy());
                         }
@@ -213,14 +227,14 @@ public class Game implements Initializable {
                         double posY_deco = x * C + y * D + TILE_SIZE_HALF * (layer + 1) - TILE_SIZE_HALF;
 
                         if (tile.isMarked()) {
-                            decoSprite = tileSprites.get("flag");
+                            decoSprite = tileSprites.get("flag")[0];
                             gc.drawImage(decoSprite.getImage(), posX+tile.getGraphic().getDecoration().getVx(), posY_deco+tile.getGraphic().getDecoration().getVy());
                         }
-                        else if (tile.hasDecoration())
-                            decoSprite = tileSprites.get(tile.getGraphic().getDecoration().getDecorationModel());
+                        else if (tile.hasDecoration()) {
+                            decoSprite = tileSprites.get(tile.getGraphic().getDecoration().getDecorationModel())[tile.getGraphic().getDecoration().getVariation()];
                             if (decoSprite != null)
-                                gc.drawImage(decoSprite.getImage(), posX+tile.getGraphic().getDecoration().getVx(), posY_deco+tile.getGraphic().getDecoration().getVy());
-
+                                gc.drawImage(decoSprite.getImage(), posX + tile.getGraphic().getDecoration().getVx(), posY_deco + tile.getGraphic().getDecoration().getVy());
+                        }
                     }
                 }
             }
