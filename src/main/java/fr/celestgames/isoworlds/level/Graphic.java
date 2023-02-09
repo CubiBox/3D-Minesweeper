@@ -25,7 +25,7 @@ public class Graphic {
     }
     public Graphic(String texture) {
         Random rand = new Random();
-        this.variation = rand.nextInt(0,2);
+        this.variation = rand.nextInt(0,1);
         this.texture = texture;
     }
 

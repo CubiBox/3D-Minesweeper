@@ -36,6 +36,7 @@ public class Tile {
         this.graphic = new Graphic(value.getId());
     }
 
+
     public TileType getValue() {
         return value;
     }

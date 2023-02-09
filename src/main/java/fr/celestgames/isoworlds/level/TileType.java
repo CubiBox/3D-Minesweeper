@@ -3,7 +3,7 @@ package fr.celestgames.isoworlds.level;
 public enum TileType {
     VOID("void"),
     CUBE("cube"),
-    BOMB("cube_mined");
+    BOMB("bomb");
 
     private final String id;
 

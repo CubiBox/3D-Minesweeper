@@ -1,5 +1,6 @@
 package fr.celestgames.isoworlds.minesweeper;
 
+import fr.celestgames.isoworlds.controllers.Game;
 import fr.celestgames.isoworlds.level.*;
 
 import java.util.Random;
@@ -15,14 +16,16 @@ public class Demineur {
         this.size = layers[0].getWidth();
 
         Random rand = new Random();
-        for (int z = 0; z < height; z ++) {
-            for (int y = 0; y < size; y++) {
+        for (int z = height-1; z >= 0; z --)
+            for (int y = 0; y < size; y++)
                 for (int x = 0; x < size; x++) {
-                    layers[z].getTiles()[y][x].setBomb((rand.nextInt(0, 20) == 1));
+                    if ((rand.nextInt(0, 20) == 1)) {
+                        //Game.bombs.add(new int[]{x,y,z});
+                        layers[z].getTiles()[y][x].setBomb(true);
+                    }
                     layers[z].getTiles()[y][x].setValue(TileType.CUBE);
                 }
-            }
-        }
+        //Game.currentBombAtLose = Game.bombs.size() - 1;
         decorateMap();
     }
 
@@ -31,7 +34,7 @@ public class Demineur {
 
         int deepstoneLayer = this.getHeight()-this.getHeight()/3;
 
-        int r = rand.nextInt(2,this.height/4);
+        int r = rand.nextInt(2,(this.height/4 > 2 ? this.height/4 : 3));
         int[][] lodes = new int[r][7];
 
         for (int i = 0; i < r; i ++) {
@@ -51,38 +54,39 @@ public class Demineur {
             lodes[i] = lode;
         }
 
-        for (int z = 0; z < height; z ++) {
-            for (int y = 0; y < size; y++) {
+        for (int z = 0; z < height; z ++)
+            for (int y = 0; y < size; y++)
                 for (int x = 0; x < size; x++) {
                     Graphic graphic = new Graphic();
                     if (z==0 || this.getTile(x,y,z-1).getValue() == TileType.VOID){
                         graphic.setTexture("grass_block");
-                        if (rand.nextInt(2)==1)
-                            graphic.setDecoration(new Decoration(
-                                    (rand.nextInt(10) < 8) ? "grass" : "flower"
-                            ));
+                        if (rand.nextInt(2)==1) {
+                            if (rand.nextInt(10) < 8)
+                                graphic.setDecoration(new Decoration("grass","grass"));
+                            else
+                                graphic.setDecoration(new Decoration("flower","flowers"));
+                        }
                     }
                     else if (this.getTile(x,y,z-1).getValue() == TileType.CUBE) {
                         if (z <= 3) {
                             graphic.setTexture(
-                                    (z == 3) ? (
-                                            (rand.nextInt(10) < 8 ) ? "dirt" : "stone"
-                                    ) : "dirt"
+                                    (z == 3) ? ((rand.nextInt(10) < 8 ) ? "dirt" : "stone") : "dirt"
                             );
                             if (rand.nextInt(20) == 1)
-                                graphic.setDecoration(new Decoration("rock"));
+                                graphic.setDecoration(new Decoration("rock","rocks"));
                         }
                         else if (z < deepstoneLayer) {
                             graphic.setTexture("stone");
                             if (rand.nextInt(10) == 1)
-                                graphic.setDecoration(new Decoration("rock"));
+                                graphic.setDecoration(new Decoration("rock","rocks"));
                         }
-                        else
+                        else {
                             graphic.setTexture(
-                                (z == deepstoneLayer) ? (
-                                        (rand.nextInt(10) < 8 ) ? "deepstone" : "stone"
-                                ) : "deepstone"
-                        );
+                                    (z == deepstoneLayer) ? ((rand.nextInt(10) < 8) ? "deepstone" : "stone") : "deepstone"
+                            );
+                            if (rand.nextInt(10) == 1)
+                                graphic.setDecoration(new Decoration("deeprock","deeprocks"));
+                        }
 
 
                         //ores
@@ -92,8 +96,6 @@ public class Demineur {
                     }
                     getTile(x,y,z).setGraphic(graphic);
                 }
-            }
-        }
     }
 
     public boolean isInLode(int[][] lodes, int x, int y, int z){
@@ -180,16 +182,13 @@ public class Demineur {
             layers[z].getTiles()[y][x].setValue(TileType.VOID);
             layers[z].getTiles()[y][x].setReveled(true);
             layers[z].getTiles()[y][x].setNbMine(0);
-            for (int k = -1; k <= 1; k ++) {
-                for (int i = -1; i <= 1; i ++){
-                    for (int j = -1; j <= 1; j++) {
-                        if (x + j >= 0 && x + j < size
+            for (int k = -1; k <= 1; k ++)
+                for (int i = -1; i <= 1; i ++)
+                    for (int j = -1; j <= 1; j++)
+                        if      (x + j >= 0 && x + j < size
                                 && y + i >= 0 && y + i < size
                                 && z + k >= 0 && z + k < height)
                             revele(x + j, y + i, z + k);
-                    }
-                }
-            }
         }
         else if (!estRevele(x,y,z) && !isBomb(x,y,z)){
             layers[z].getTiles()[y][x].setNbMine(nbMineNeigh(x,y,z));

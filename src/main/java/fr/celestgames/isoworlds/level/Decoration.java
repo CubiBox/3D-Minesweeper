@@ -15,10 +15,10 @@ public class Decoration {
         Random rand = new Random();
         this.decoration = decoration;
         this.folder = decoration;
-        if (!decoration.equals("flag")) {
+        if (Game.tileSprites.get(folder).length > 0) {
             this.vx = rand.nextInt(-64 / 16, 64 / 8);
             this.vy = rand.nextInt(-64 / 16, 64 / 8);
-            this.variation = rand.nextInt(0, Game.tileSprites.get("flag").length);
+            this.variation = rand.nextInt(0, Game.tileSprites.get(folder).length);
         }
     }
 
@@ -26,10 +26,10 @@ public class Decoration {
         Random rand = new Random();
         this.decoration = decoration;
         this.folder = folder;
-        if (!decoration.equals("flag")) {
+        if (Game.tileSprites.get(folder).length > 0) {
             this.vx = rand.nextInt(-64 / 16, 64 / 8);
             this.vy = rand.nextInt(-64 / 16, 64 / 8);
-            this.variation = rand.nextInt(0, Game.tileSprites.get(getDecorationModel()).length);
+            this.variation = rand.nextInt(0, Game.tileSprites.get(folder).length);
         }
     }
 
