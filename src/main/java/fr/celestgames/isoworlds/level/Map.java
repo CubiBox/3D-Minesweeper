@@ -16,11 +16,6 @@ public class Map {
         this.layers = new MapLayer[height];
         for (int i = 0; i < height; i ++)
             layers[i] = new MapLayer(width,width);
-
-        /*
-        this.layers = new MapLayer[1];
-        this.layers[0] = new MapLayer(width, height);
-         */
     }
 
     public MapLayer[] getLayers() {
@@ -35,18 +30,6 @@ public class Map {
         }
 
         return layers[layerNb];
-    }
-
-    public void addNewLayer() {
-        MapLayer[] temp = new MapLayer[layers.length + 1];
-
-        for (int i = 0; i < layers.length; i++) {
-            temp[i] = layers[i];
-        }
-
-        temp[layers.length] = new MapLayer(this.width, this.height);
-
-        layers = temp;
     }
 
     public Demineur getDemineur() {

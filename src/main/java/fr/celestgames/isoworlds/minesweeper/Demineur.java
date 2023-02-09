@@ -10,22 +10,34 @@ public class Demineur {
     private int height;
     private MapLayer[] layers;
 
-    public Demineur(MapLayer[] layers) {
+    private int nbBombs;
+
+    public Demineur(MapLayer[] layers, int nbBombs) {
         this.layers = layers;
         this.height = layers.length;
         this.size = layers[0].getWidth();
+        this.nbBombs = nbBombs;
 
         Random rand = new Random();
         for (int z = height-1; z >= 0; z --)
             for (int y = 0; y < size; y++)
-                for (int x = 0; x < size; x++) {
-                    if ((rand.nextInt(0, 20) == 1)) {
-                        //Game.bombs.add(new int[]{x,y,z});
-                        layers[z].getTiles()[y][x].setBomb(true);
-                    }
+                for (int x = 0; x < size; x++)
                     layers[z].getTiles()[y][x].setValue(TileType.CUBE);
-                }
-        //Game.currentBombAtLose = Game.bombs.size() - 1;
+
+
+
+        int x = 0;
+        int y = 0;
+        int z = 0;
+        while (nbBombs != 0) {
+            x = rand.nextInt(0 ,size);
+            y = rand.nextInt(0 ,size);
+            z = rand.nextInt(0 ,height);
+            if (!layers[z].getTiles()[y][x].isBomb()) {
+                layers[z].getTiles()[y][x].setBomb(true);
+                nbBombs --;
+            }
+        }
         decorateMap();
     }
 
@@ -161,8 +173,8 @@ public class Demineur {
     }
 
 
-    public int nbMineNeigh(int x, int y, int z){
-        int bombs = 0;
+    public byte nbMineNeigh(int x, int y, int z){
+        byte bombs = 0;
         for (int k = -1; k <= 1; k ++) {
             for (int i = -1; i <= 1; i ++){
                 for (int j = -1; j <= 1; j++) {

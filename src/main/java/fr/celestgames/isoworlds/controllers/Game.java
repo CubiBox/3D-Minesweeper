@@ -28,15 +28,15 @@ public class Game implements Initializable {
     public Button turnLeftButton;
     public Button turnRightButton;
 
-    public static HashMap<String, ImageView[]> tileSprites = new HashMap<>();
-
-
     private Map currentMap;
     private int currentLayer;
     private boolean isLose;
 
-    public static ArrayList<int[]> bombs = new ArrayList<>();
-    public static byte[][][] particleSprite;
+
+    public static HashMap<String, ImageView[]> tileSprites = new HashMap<>();
+
+    public ArrayList<int[]> bombs = new ArrayList<>();
+    public byte[][][] particleSprite;
 
     private double TILE_SIZE = 0;
 
@@ -46,24 +46,13 @@ public class Game implements Initializable {
     private double yOffset = 0;
 
 
-    public static Map createMinedMap(int width, int height) {
+    public static Map createMinedMap(int width, int height, int nbBombs) {
         Map map = new Map(width, height);
-        map.setDemineur(new Demineur(map.getLayers()));
+        map.setDemineur(new Demineur(map.getLayers(), nbBombs));
 
         return map;
     }
 
-    public ImageView getImageView(String line){
-        line = getFileName(line);
-        InputStream tileIS = MineSweeper.class.getResourceAsStream("textures/" + line + ".png");
-        return (tileIS == null) ?
-                null :
-                new ImageView(new javafx.scene.image.Image(tileIS,TILE_SIZE,TILE_SIZE,false,false));
-    }
-
-    public String getFileName(String line){
-        return line.replaceAll(".png", "");
-    }
 
     public void initScreenvalue(){
         A = 0.5 * TILE_SIZE;
@@ -79,51 +68,16 @@ public class Game implements Initializable {
         D1 = A * det;
     }
 
-    public void getAllSprite(){
-        File folder = new File(Main.class.getResource("textures").getFile());
-        File[] listOfFiles = folder.listFiles();
-
-        assert listOfFiles != null;
-        for (File file : listOfFiles) {
-            if (file.isDirectory()) {
-                File[] files_intern = file.listFiles();
-
-                assert files_intern != null;
-                ImageView[] images = new ImageView[files_intern.length];
-
-                int count = 0;
-                for (File file_intern : files_intern) {
-                    ImageView img = getImageView(file.getName() + "/" + file_intern.getName());
-                    if (img != null) {
-                        if (file.getName().equals("numbers")) {
-                            try {
-                                images[Integer.parseInt(getFileName(file_intern.getName()))] = img;
-                            } catch (Exception e) {
-                                images[count] = img;
-                                count++;
-                            }
-                        }
-                        else {
-                            images[count] = img;
-                            count++;
-                        }
-                    }
-                }
-                tileSprites.put(file.getName(), images);
-            }
-            else if (file.isFile()) {
-                ImageView img = getImageView(file.getName());
-                if (img != null) {
-                    tileSprites.put(getFileName(file.getName()), new ImageView[]{img});
-                }
-            }
-        }
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        int width = 22;   //5  8  22
-        int height = 5;  //5  10  15
+        int width = 10;   //5  8  22
+        int height = 10;  //5  10  15
+        int nbBombs = 30;
+
+        /*
+        if ((width*width*height)/128 <= 10)
+            nbBombs = (width*width*height)/10;
+        */
 
         particleSprite = new byte[height][width][width];
         currentLayer = 0;
@@ -136,12 +90,11 @@ public class Game implements Initializable {
 
         System.out.println(TILE_SIZE);
 
-        getAllSprite();
+        MineSweeper.getAllSprite((int) TILE_SIZE);
+        tileSprites = MineSweeper.tileSprites;
         initScreenvalue();
-        currentMap = createMinedMap(width, height);
+        currentMap = createMinedMap(width, height, nbBombs);
         canvas.setHeight(currentMap.getLayersCount() * (TILE_SIZE/2) + currentMap.getWidth() * (TILE_SIZE/2) + 2 * yOffset);
-
-
 
         System.out.println(TILE_SIZE);
 

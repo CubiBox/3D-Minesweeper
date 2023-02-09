@@ -4,7 +4,7 @@ public class Tile {
     private TileType value;
     private boolean isReveled;
     private boolean isBomb;
-    private int nbMine;
+    private byte nbMine;
     private boolean isMarked;
     private Graphic graphic;
 
@@ -48,10 +48,13 @@ public class Tile {
         isReveled = reveled;
     }
 
-    public int getNbMine() {
+    public byte getNbMine() {
         return nbMine;
     }
     public void setNbMine(int nbMine) {
+        this.nbMine = (byte)nbMine;
+    }
+    public void setNbMine(byte nbMine) {
         this.nbMine = nbMine;
     }
 

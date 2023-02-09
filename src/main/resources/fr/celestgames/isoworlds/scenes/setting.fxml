@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="480.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.Setting">
+   <center>
+        <VBox prefHeight="455.0" prefWidth="220.0" BorderPane.alignment="CENTER">
+         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+            <children>
+                  <Label text="Setting">
+                  <font>
+                     <Font size="48.0" />
+                  </font>
+               </Label>
+            </children>
+         </VBox>
+             <VBox alignment="TOP_CENTER" prefHeight="208.0" prefWidth="720.0">
+                <children>
+               <HBox alignment="CENTER" prefHeight="58.0" prefWidth="720.0">
+                  <children>
+                     <Label text="Label" />
+                     <Slider />
+                  </children>
+               </HBox>
+               <HBox alignment="CENTER" prefHeight="58.0" prefWidth="720.0">
+                  <children>
+                     <Label text="Label" />
+                     <Slider />
+                  </children>
+               </HBox>
+               <HBox alignment="CENTER" prefHeight="58.0" prefWidth="720.0">
+                  <children>
+                     <Label text="Label" />
+                     <Slider />
+                  </children>
+               </HBox>
+                </children>
+             </VBox>
+         <VBox alignment="BOTTOM_RIGHT" prefHeight="117.0" prefWidth="720.0">
+            <children>
+                   <Button fx:id="playButton" minWidth="150.0" mnemonicParsing="false" onAction="#play" prefHeight="45.0" prefWidth="150.0" text="back" />
+            </children>
+         </VBox>
+        </VBox>
+   </center>
+   <bottom>
+      <Canvas fx:id="canvas" height="62.0" width="288.0" BorderPane.alignment="CENTER" />
+   </bottom>
+</BorderPane>
