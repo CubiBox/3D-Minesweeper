@@ -1,5 +1,6 @@
 package fr.celestgames.isoworlds.level;
 
+import fr.celestgames.isoworlds.MineSweeper;
 import fr.celestgames.isoworlds.controllers.Game;
 
 import java.util.Random;
@@ -7,18 +8,18 @@ import java.util.Random;
 public class Decoration {
     private String folder;
     private String decoration;
-    private int variation;
-    private int vx;
-    private int vy;
+    private byte variation;
+    private byte vx;
+    private byte vy;
 
     public Decoration(String decoration) {
         Random rand = new Random();
         this.decoration = decoration;
         this.folder = decoration;
-        if (Game.tileSprites.get(folder).length > 0) {
-            this.vx = rand.nextInt(-64 / 16, 64 / 8);
-            this.vy = rand.nextInt(-64 / 16, 64 / 8);
-            this.variation = rand.nextInt(0, Game.tileSprites.get(folder).length);
+        if (MineSweeper.tileSprites.get(folder).length > 0) {
+            this.vx = (byte) rand.nextInt(-64 / 16, 64 / 8);
+            this.vy = (byte) rand.nextInt(-64 / 16, 64 / 8);
+            this.variation = (byte) rand.nextInt(0, MineSweeper.tileSprites.get(folder).length);
         }
     }
 
@@ -26,13 +27,12 @@ public class Decoration {
         Random rand = new Random();
         this.decoration = decoration;
         this.folder = folder;
-        if (Game.tileSprites.get(folder).length > 0) {
-            this.vx = rand.nextInt(-64 / 16, 64 / 8);
-            this.vy = rand.nextInt(-64 / 16, 64 / 8);
-            this.variation = rand.nextInt(0, Game.tileSprites.get(folder).length);
+        if (MineSweeper.tileSprites.get(folder).length > 0) {
+            this.vx = (byte) rand.nextInt(-64 / 16, 64 / 8);
+            this.vy = (byte) rand.nextInt(-64 / 16, 64 / 8);
+            this.variation = (byte) rand.nextInt(0, MineSweeper.tileSprites.get(folder).length);
         }
     }
-
 
     public String getDecorationModel() {
         return (folder!=null) ?
@@ -58,6 +58,9 @@ public class Decoration {
     }
 
     public void setVariation(int variation) {
+        this.variation = (byte) variation;
+    }
+    public void setVariation(byte variation) {
         this.variation = variation;
     }
 
@@ -66,6 +69,9 @@ public class Decoration {
     }
 
     public void setVx(int vx) {
+        this.vx = (byte) vx;
+    }
+    public void setVx(byte vx) {
         this.vx = vx;
     }
 
@@ -74,6 +80,9 @@ public class Decoration {
     }
 
     public void setVy(int vy) {
+        this.vy = (byte) vy;
+    }
+    public void setVy(byte vy) {
         this.vy = vy;
     }
 

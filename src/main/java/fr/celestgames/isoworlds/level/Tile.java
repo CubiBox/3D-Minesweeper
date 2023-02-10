@@ -2,7 +2,7 @@ package fr.celestgames.isoworlds.level;
 
 public class Tile {
     private TileType value;
-    private boolean isReveled;
+    private boolean isRevealed;
     private boolean isBomb;
     private byte nbMine;
     private boolean isMarked;
@@ -11,7 +11,7 @@ public class Tile {
 
     public Tile(TileType value) {
         this.value = value;
-        this.isReveled = false;
+        this.isRevealed = false;
         this.isBomb = false;
         this.nbMine = 0;
         this.isMarked = false;
@@ -20,7 +20,7 @@ public class Tile {
 
     public Tile() {
         this.value = TileType.VOID;
-        this.isReveled = false;
+        this.isRevealed = false;
         this.isBomb = false;
         this.nbMine = 0;
         this.isMarked = false;
@@ -41,11 +41,11 @@ public class Tile {
         return value;
     }
 
-    public boolean isReveled() {
-        return isReveled;
+    public boolean isRevealed() {
+        return isRevealed;
     }
-    public void setReveled(boolean reveled) {
-        isReveled = reveled;
+    public void setRevealed(boolean revealed) {
+        isRevealed = revealed;
     }
 
     public byte getNbMine() {

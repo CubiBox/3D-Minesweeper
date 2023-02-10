@@ -5,14 +5,14 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.Custom">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.Custom">
    <children>
       <VBox prefHeight="406.0" prefWidth="600.0">
          <children>
@@ -28,19 +28,19 @@
                         <HBox alignment="CENTER" prefHeight="40.0" prefWidth="370.0" spacing="50.0">
                            <children>
                               <Label prefHeight="17.0" prefWidth="109.0" text="Width" />
-                              <TextField fx:id="widthInput" prefHeight="25.0" prefWidth="103.0" />
+                              <Slider fx:id="widthSlider" max="30.0" min="5.0" prefHeight="14.0" prefWidth="109.0" value="5.0" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="40.0" prefWidth="370.0" spacing="50.0">
                            <children>
                               <Label prefHeight="17.0" prefWidth="109.0" text="Height" />
-                              <TextField fx:id="heightInput" prefHeight="25.0" prefWidth="103.0" />
+                              <Slider fx:id="heightSlider" max="30.0" min="5.0" prefHeight="14.0" prefWidth="109.0" value="5.0" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="40.0" prefWidth="370.0" spacing="50.0">
                            <children>
                               <Label prefHeight="17.0" prefWidth="109.0" text="Bombs" />
-                              <TextField fx:id="BombsInput" prefHeight="25.0" prefWidth="103.0" />
+                              <TextField fx:id="bombsInput" prefHeight="25.0" prefWidth="103.0" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="40.0" prefWidth="370.0" spacing="50.0">

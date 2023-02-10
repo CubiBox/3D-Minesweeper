@@ -8,12 +8,22 @@ import java.util.Random;
 public class Demineur {
     private int size;
     private int height;
-    private MapLayer[] layers;
-
     private int nbBombs;
 
+    public Demineur(MapLayer[] layers) {
+        this.height = layers.length;
+        this.size = layers[0].getWidth();
+        this.nbBombs = 0;
+
+        for (int z = height-1; z >= 0; z --)
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                    layers[z].getTiles()[y][x].setValue(TileType.CUBE);
+
+        decorateMap(layers);
+    }
+
     public Demineur(MapLayer[] layers, int nbBombs) {
-        this.layers = layers;
         this.height = layers.length;
         this.size = layers[0].getWidth();
         this.nbBombs = nbBombs;
@@ -24,11 +34,7 @@ public class Demineur {
                 for (int x = 0; x < size; x++)
                     layers[z].getTiles()[y][x].setValue(TileType.CUBE);
 
-
-
-        int x = 0;
-        int y = 0;
-        int z = 0;
+        int x,y,z;
         while (nbBombs != 0) {
             x = rand.nextInt(0 ,size);
             y = rand.nextInt(0 ,size);
@@ -38,10 +44,10 @@ public class Demineur {
                 nbBombs --;
             }
         }
-        decorateMap();
+        decorateMap(layers);
     }
 
-    private void decorateMap() {
+    private void decorateMap(MapLayer[] layers) {
         Random rand = new Random();
 
         int deepstoneLayer = this.getHeight()-this.getHeight()/3;
@@ -70,7 +76,7 @@ public class Demineur {
             for (int y = 0; y < size; y++)
                 for (int x = 0; x < size; x++) {
                     Graphic graphic = new Graphic();
-                    if (z==0 || this.getTile(x,y,z-1).getValue() == TileType.VOID){
+                    if (z==0 || layers[z-1].getTile(x,y).getValue() == TileType.VOID){
                         graphic.setTexture("grass_block");
                         if (rand.nextInt(2)==1) {
                             if (rand.nextInt(10) < 8)
@@ -79,7 +85,7 @@ public class Demineur {
                                 graphic.setDecoration(new Decoration("flower","flowers"));
                         }
                     }
-                    else if (this.getTile(x,y,z-1).getValue() == TileType.CUBE) {
+                    else if (layers[z-1].getTile(x,y).getValue() == TileType.CUBE) {
                         if (z <= 3) {
                             graphic.setTexture(
                                     (z == 3) ? ((rand.nextInt(10) < 8 ) ? "dirt" : "stone") : "dirt"
@@ -106,7 +112,7 @@ public class Demineur {
                             graphic.setTexture((z < deepstoneLayer) ? "coal_stone" : "coal_deep");
 
                     }
-                    getTile(x,y,z).setGraphic(graphic);
+                    layers[z].getTile(x,y).setGraphic(graphic);
                 }
     }
 
@@ -143,7 +149,7 @@ public class Demineur {
     }
 
     public void rotateMinesweeperLeft(){
-        for (MapLayer layer : layers) {
+        for (MapLayer layer : Game.currentMap.getLayers()) {
             int width = layer.getWidth();
             int height = layer.getHeight();
 
@@ -189,44 +195,41 @@ public class Demineur {
         return bombs;
     }
 
-    public boolean revele(int x, int y, int z){
-        if (nbMineNeigh(x,y,z) == 0 && !estRevele(x,y,z) && !isBomb(x,y,z)){
-            layers[z].getTiles()[y][x].setValue(TileType.VOID);
-            layers[z].getTiles()[y][x].setReveled(true);
-            layers[z].getTiles()[y][x].setNbMine(0);
+    public boolean reveal(int x, int y, int z){
+        if (nbMineNeigh(x,y,z) == 0 && !getLayers()[z].getTiles()[y][x].isRevealed() && !isBomb(x,y,z)){
+            getLayers()[z].getTiles()[y][x].setValue(TileType.VOID);
+            getLayers()[z].getTiles()[y][x].setRevealed(true);
+            getLayers()[z].getTiles()[y][x].setNbMine(0);
             for (int k = -1; k <= 1; k ++)
                 for (int i = -1; i <= 1; i ++)
                     for (int j = -1; j <= 1; j++)
                         if      (x + j >= 0 && x + j < size
                                 && y + i >= 0 && y + i < size
                                 && z + k >= 0 && z + k < height)
-                            revele(x + j, y + i, z + k);
+                            reveal(x + j, y + i, z + k);
         }
-        else if (!estRevele(x,y,z) && !isBomb(x,y,z)){
-            layers[z].getTiles()[y][x].setNbMine(nbMineNeigh(x,y,z));
-            layers[z].getTiles()[y][x].setValue(TileType.VOID);
-            layers[z].getTiles()[y][x].setReveled(true);
+        else if (!getLayers()[z].getTiles()[y][x].isRevealed() && !isBomb(x,y,z)){
+            getLayers()[z].getTiles()[y][x].setNbMine(nbMineNeigh(x,y,z));
+            getLayers()[z].getTiles()[y][x].setValue(TileType.VOID);
+            getLayers()[z].getTiles()[y][x].setRevealed(true);
         }
         else if (isBomb(x,y,z)) {
-            layers[z].getTiles()[y][x].setValue(TileType.BOMB);
+            getLayers()[z].getTiles()[y][x].setValue(TileType.BOMB);
             return false;
         }
         return true;
     }
 
     public boolean isBomb(int x, int y, int z){
-        return (layers[z].getTiles()[y][x].isBomb());
-    }
-    public boolean estRevele(int x, int y, int z){
-        return (layers[z].getTiles()[y][x].isReveled());
+        return (getLayers()[z].getTiles()[y][x].isBomb());
     }
 
     public Tile getTile(int x, int y, int z){
-        return layers[z].getTile(x,y);
+        return getLayers()[z].getTile(x,y);
     }
 
     public void setTile(int x, int y, int z, Tile t){
-        layers[z].setTile(x,y,t);
+        getLayers()[z].setTile(x,y,t);
     }
 
 
@@ -247,10 +250,6 @@ public class Demineur {
     }
 
     public MapLayer[] getLayers() {
-        return layers;
-    }
-
-    public void setLayers(MapLayer[] layers) {
-        this.layers = layers;
+        return Game.currentMap.getLayers();
     }
 }

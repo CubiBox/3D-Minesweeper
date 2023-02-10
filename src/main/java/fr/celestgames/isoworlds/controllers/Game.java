@@ -1,8 +1,6 @@
 package fr.celestgames.isoworlds.controllers;
 
-import fr.celestgames.isoworlds.Main;
 import fr.celestgames.isoworlds.MineSweeper;
-import fr.celestgames.isoworlds.level.Graphic;
 import fr.celestgames.isoworlds.level.Map;
 import fr.celestgames.isoworlds.level.Tile;
 import fr.celestgames.isoworlds.level.TileType;
@@ -18,26 +16,25 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
-import java.io.File;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
 public class Game implements Initializable {
+    //FXML
     public Canvas canvas;
     public Button turnLeftButton;
     public Button turnRightButton;
 
-    private Map currentMap;
+    //global variables
+    public static Map currentMap;
     private int currentLayer;
     private boolean isLose;
 
-
-    public static HashMap<String, ImageView[]> tileSprites = new HashMap<>();
-
+    //animation lists
     public ArrayList<int[]> bombs = new ArrayList<>();
     public byte[][][] particleSprite;
 
+    //util variables
     private double TILE_SIZE = 0;
 
     private double A, B, C, D, A1, B1, C1, D1 = 0;
@@ -72,7 +69,7 @@ public class Game implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         int width = 10;   //5  8  22
         int height = 10;  //5  10  15
-        int nbBombs = 30;
+        int nbBombs = 60;
 
         /*
         if ((width*width*height)/128 <= 10)
@@ -91,12 +88,9 @@ public class Game implements Initializable {
         System.out.println(TILE_SIZE);
 
         MineSweeper.getAllSprite((int) TILE_SIZE);
-        tileSprites = MineSweeper.tileSprites;
         initScreenvalue();
         currentMap = createMinedMap(width, height, nbBombs);
         canvas.setHeight(currentMap.getLayersCount() * (TILE_SIZE/2) + currentMap.getWidth() * (TILE_SIZE/2) + 2 * yOffset);
-
-        System.out.println(TILE_SIZE);
 
         canvas.setOnMouseMoved(this::updateCanvas);
         canvas.setOnMouseClicked(this::updateMap);
@@ -135,11 +129,11 @@ public class Game implements Initializable {
     }
 
     private void rotateMinesweeperLeft(MouseEvent mouseEvent) {
-        this.currentMap.getDemineur().rotateMinesweeperLeft();
+        currentMap.getDemineur().rotateMinesweeperLeft();
         lowUpdateCanvas();
     }
     private void rotateMinesweeperRight(MouseEvent mouseEvent) {
-        this.currentMap.getDemineur().rotateMinesweeperRight();
+        currentMap.getDemineur().rotateMinesweeperRight();
         lowUpdateCanvas();
     }
 
@@ -199,22 +193,22 @@ public class Game implements Initializable {
                     Tile tile = currentMap.getLayer(layer).getTile(x, y);
 
                     //draw cube
-                    ImageView tileSprite = tileSprites.get(tile.getTexture())[tile.getGraphic().getVariation()];
+                    ImageView tileSprite = MineSweeper.tileSprites.get(tile.getTexture())[tile.getGraphic().getVariation()];
                     if (tileSprite != null) {
                         gc.drawImage(tileSprite.getImage(), posX, posY);
                         if (tile.getNbMine() > 0 && layer == currentLayer && !isLose) {
-                            ImageView numberSprite = tileSprites.get("numbers")[tile.getNbMine()];
+                            ImageView numberSprite = MineSweeper.tileSprites.get("numbers")[tile.getNbMine()];
                             gc.drawImage(numberSprite.getImage(), posX, posY);
                         }
                     }
 
                     //draw decoration
                     ImageView decoSprite = null;
-                    if (!tile.isReveled()) {
+                    if (!tile.isRevealed()) {
                         if (tile.isMarked())
-                            gc.drawImage(tileSprites.get("flag")[0].getImage(), posX, posY - TILE_SIZE_HALF);
+                            gc.drawImage(MineSweeper.tileSprites.get("flag")[0].getImage(), posX, posY - TILE_SIZE_HALF);
                         else if (tile.hasDecoration()) {
-                            decoSprite = tileSprites.get(tile.getGraphic().getDecoration().getFolder())[tile.getGraphic().getDecoration().getVariation()];
+                            decoSprite = MineSweeper.tileSprites.get(tile.getGraphic().getDecoration().getFolder())[tile.getGraphic().getDecoration().getVariation()];
                             if (decoSprite != null)
                                 gc.drawImage(decoSprite.getImage(), posX + tile.getGraphic().getDecoration().getVx(), posY - TILE_SIZE_HALF + tile.getGraphic().getDecoration().getVy());
                         }
@@ -226,17 +220,17 @@ public class Game implements Initializable {
                         double posY_deco = x * C + y * D + TILE_SIZE_HALF * (layer + 1) - TILE_SIZE_HALF + yOffset;
 
                         if (tile.isMarked()) {
-                            decoSprite = tileSprites.get("flag")[0];
-                            gc.drawImage(decoSprite.getImage(), posX + tile.getGraphic().getDecoration().getVx(), posY_deco + tile.getGraphic().getDecoration().getVy());
+                            decoSprite = MineSweeper.tileSprites.get("flag")[0];
+                            gc.drawImage(decoSprite.getImage(), posX, posY_deco);
                         } else if (tile.hasDecoration()) {
-                            decoSprite = tileSprites.get(tile.getGraphic().getDecoration().getFolder())[tile.getGraphic().getDecoration().getVariation()];
+                            decoSprite = MineSweeper.tileSprites.get(tile.getGraphic().getDecoration().getFolder())[tile.getGraphic().getDecoration().getVariation()];
                             if (decoSprite != null)
                                 gc.drawImage(decoSprite.getImage(), posX + tile.getGraphic().getDecoration().getVx(), posY_deco + tile.getGraphic().getDecoration().getVy());
                         }
                     }
 
                     if (particleSprite[layer][y][x] != 0){
-                        gc.drawImage(tileSprites.get("explode")[particleSprite[layer][y][x] - 1].getImage(), posX, posY - TILE_SIZE_HALF);
+                        gc.drawImage(MineSweeper.tileSprites.get("explode")[particleSprite[layer][y][x] - 1].getImage(), posX, posY - TILE_SIZE_HALF);
                     }
                 }
             }
@@ -247,17 +241,17 @@ public class Game implements Initializable {
         double x = event.getX() - xOffset;
         double y = event.getY() - yOffset;
 
-        int posY = (int) (x * A1 + y * B1 - currentLayer);
-        int posX = (int) (x * C1 + y * D1 - currentLayer);
+        int posX = (int) (x * A1 + y * B1 - currentLayer);
+        int posY = (int) (x * C1 + y * D1 - currentLayer);
 
-        if (posY >= 0 && posX >= 0 && posX < currentMap.getWidth() && posY < currentMap.getHeight()) {
+        if (posX >= 0 && posY >= 0 && posY < currentMap.getHeight() && posX < currentMap.getWidth()) {
             if (event.getButton() == MouseButton.SECONDARY) {
-                currentMap.getLayer(currentLayer).getTile(posY, posX).setMarked(
-                        !currentMap.getLayer(currentLayer).getTile(posY, posX).isMarked()
+                currentMap.getLayer(currentLayer).getTile(posX, posY).setMarked(
+                        !currentMap.getLayer(currentLayer).getTile(posX, posY).isMarked()
                 );
             }
             else if (event.getButton() == MouseButton.PRIMARY)
-                if (!currentMap.getDemineur().revele(posX, posY, currentLayer)) {
+                if (!currentMap.getDemineur().reveal(posX, posY, currentLayer)) {
                     bombs.add(new int[]{currentLayer, posY, posX});
                     currentLayer = 0;
                     endGame();
@@ -290,10 +284,10 @@ public class Game implements Initializable {
     }
 
     public void explode(int z, int y, int x){
-        if (this.currentMap.getDemineur().getTile(x,y,z).isReveled()){
+        if (this.currentMap.getDemineur().getTile(x,y,z).isRevealed()){
             bombs.remove(0);
         }
-        this.currentMap.getDemineur().getTile(x,y,z).setReveled(true);
+        this.currentMap.getDemineur().getTile(x,y,z).setRevealed(true);
         this.currentMap.getDemineur().getTile(x,y,z).getGraphic().setVariation(8);
         int[][] lodes = {{x,y,z,x,y,z,6}};
 
@@ -305,7 +299,7 @@ public class Game implements Initializable {
                         t.getGraphic().setVariation(t.getGraphic().getVariation() - 1);
 
                     if (this.currentMap.getDemineur().isInLode(lodes, cur_x,cur_y,cur_z)) {
-                        if (t.isBomb() && !t.isReveled()) {
+                        if (t.isBomb() && !t.isRevealed()) {
                             t.setValue(TileType.BOMB);
                             int[] tmp = {cur_z, cur_y, cur_x};
                             if (!contains(bombs,tmp))
@@ -316,7 +310,7 @@ public class Game implements Initializable {
 
                         Random rand = new Random();
                         if (rand.nextInt(0,20) == 1 && particleSprite[cur_z][cur_y][cur_x]==0) particleSprite[cur_z][cur_y][cur_x] = (byte) rand.nextInt(4,8);
-                        t.setReveled(true);
+                        t.setRevealed(true);
                     }
                 }
         if (!bombs.isEmpty())

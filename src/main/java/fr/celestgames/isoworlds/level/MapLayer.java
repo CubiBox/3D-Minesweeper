@@ -22,11 +22,11 @@ public class MapLayer {
     }
 
     public void setTile(int x, int y, Tile tile) {
-        tiles[x][y] = tile;
+        tiles[y][x] = tile;
     }
 
     public Tile getTile(int x, int y) {
-        return tiles[x][y];
+        return tiles[y][x];
     }
 
     public int getWidth() {

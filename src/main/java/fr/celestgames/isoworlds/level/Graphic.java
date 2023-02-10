@@ -4,28 +4,28 @@ import java.util.Random;
 
 public class Graphic {
     private Decoration decoration;
-    private int variation;
+    private byte variation;
     private String texture;
 
     public Graphic(String texture, Decoration decoration) {
         this.decoration = decoration;
         this.texture = texture;
         Random rand = new Random();
-        this.variation = rand.nextInt(0,1);
+        this.variation = (byte) rand.nextInt(0,1);
     }
     public Graphic(String texture, String decoration) {
         this.decoration = new Decoration(decoration);
         this.texture = texture;
         Random rand = new Random();
-        this.variation = rand.nextInt(0,1);
+        this.variation = (byte) rand.nextInt(0,1);
     }
     public Graphic() {
         Random rand = new Random();
-        this.variation = rand.nextInt(0,1);
+        this.variation = (byte) rand.nextInt(0,1);
     }
     public Graphic(String texture) {
         Random rand = new Random();
-        this.variation = rand.nextInt(0,1);
+        this.variation = (byte) rand.nextInt(0,1);
         this.texture = texture;
     }
 
@@ -46,6 +46,10 @@ public class Graphic {
     }
 
     public void setVariation(int variation) {
+        this.variation = (byte) variation;
+    }
+
+    public void setVariation(byte variation) {
         this.variation = variation;
     }
 
