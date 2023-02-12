@@ -101,7 +101,7 @@ public class Demineur implements Serializable {
             for (int k = -1; k <= 1; k ++)
                 for (int i = -1; i <= 1; i ++)
                     for (int j = -1; j <= 1; j++)
-                        if      (x + j >= 0 && x + j < size
+                        if(     x + j >= 0 && x + j < size
                                 && y + i >= 0 && y + i < size
                                 && z + k >= 0 && z + k < height)
                             reveal(x + j, y + i, z + k);

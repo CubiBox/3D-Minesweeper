@@ -1,5 +1,6 @@
 package fr.celestgames.isoworlds.minesweeper;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class PerlinNoise {

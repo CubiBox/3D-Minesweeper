@@ -8,15 +8,15 @@ import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -26,13 +26,18 @@ public class Game implements Initializable {
     public Canvas canvas;
     public Button turnLeftButton;
     public Button turnRightButton;
-
-    //global variables
-    public static Map map;
-    public CheckBox showBombs;
     public ScrollPane scrollPane;
     public Button save;
     public Button menuButton;
+    public Label counterMine;
+    public CheckBox showBombs;
+
+    public CheckBox switchOpti;
+
+    //global variables
+    public static Map map;
+    private static int spriteCount;
+
     private int currentLayer;
 
     /**  gameState
@@ -41,49 +46,35 @@ public class Game implements Initializable {
      *      2 : inLose
      *      3 : end
      */
-    private byte gameSate;
+    private static byte gameSate;
+    private int bombsLeft;
 
     //animation lists
     public ArrayList<int[]> bombs = new ArrayList<>();
-    public byte[][][] particleSprite;
+    public static byte[][][] particleSprite;
 
     //util variables
     private double TILE_SIZE = 0;
-
     private double A, B, C, D, A1, B1, C1, D1 = 0;
-
     private double xOffset = 0;
     private double yOffset = 0;
 
-    public void initScreenValue(){
-        A = 0.5 * TILE_SIZE;
-        B = -0.5 * TILE_SIZE;
-        C = 0.25 * TILE_SIZE;
-        D = 0.25 * TILE_SIZE;
 
-        double det = 1 / (A * D - B * C);
-
-        A1 = D * det;
-        B1 = -B * det;
-        C1 = -C * det;
-        D1 = A * det;
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        //recover map data
         map = MineSweeper.map;
-
         int width = map.getWidthX();
         int height = map.getLayersCount();
 
         //initialize game variables
         particleSprite = new byte[height][width][width];
         currentLayer = 0;
+        bombsLeft = map.getNbBombs();
         setInitialize();
-        canvas.setWidth(MineSweeper.stage.getWidth());
-
-        TILE_SIZE = (int)(canvas.getWidth()/(width + 8));
-        xOffset = canvas.getWidth() / 2 ;
+        TILE_SIZE = (int)(MineSweeper.stage.getWidth()/(width + 8));
+        xOffset = MineSweeper.stage.getWidth() / 2 ;
         yOffset = TILE_SIZE ;
 
         MineSweeper.getAllSprite((int) TILE_SIZE);
@@ -92,12 +83,13 @@ public class Game implements Initializable {
         if (!map.isDecorate)
             map.decorateMap(map.getLayers());
 
+        canvas.setWidth(MineSweeper.stage.getWidth());
         canvas.setHeight(map.getLayersCount() * (TILE_SIZE/2) + map.getWidthX() * (TILE_SIZE/2) + 2 * yOffset);
 
         scrollPane.setMinHeight(map.getLayersCount() * (TILE_SIZE/2) + map.getWidthX() * (TILE_SIZE/2) + 2 * yOffset);
         scrollPane.setMinWidth(MineSweeper.stage.getWidth());
 
-        canvas.setOnMouseMoved(this::updateCanvas);
+
         canvas.setOnMouseClicked(this::updateMap);
         canvas.setOnScroll(this::updateLayer);
         turnLeftButton.setOnMouseClicked(this::rotateMinesweeperLeft);
@@ -105,18 +97,22 @@ public class Game implements Initializable {
         menuButton.setOnMouseClicked(this::mainMenu);
         showBombs.setOnMouseClicked(this::updateMap);
         save.setOnMouseClicked(this::save);
+        switchOpti.setSelected(true);
+        switchOpti.setOnMouseClicked(this::updateMap);
 
-        animationThread();
+        MineSweeper.stage.widthProperty().addListener((obs, oldVal, newVal) -> updateScreen());
+        MineSweeper.stage.heightProperty().addListener((obs, oldVal, newVal) -> updateScreen());
+
+        updateScreen();
     }
 
     public void animationThread(){
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (;;) {
-                    try { Thread.sleep((isInLose() ? 50 : 10));} catch (InterruptedException ignore) { }
-
+                while (!isEnd()) {
                     if (isInLose()) {
+                        try { Thread.sleep(50);} catch (InterruptedException ignore) { }
                         if (!bombs.isEmpty() || animationsLeft() || bombLeft()) {
                             actualizeParticle();
                             endGame();
@@ -127,7 +123,6 @@ public class Game implements Initializable {
                         }
                         Platform.runLater(() -> updateCanvas());
                     }
-                    else Platform.runLater(() -> updateCanvas());
                 }
             }
         }).start();
@@ -139,6 +134,7 @@ public class Game implements Initializable {
     }
 
     private void mainMenu(MouseEvent mouseEvent) {
+        setEnd();
         MineSweeper.mainMenu();
     }
 
@@ -175,92 +171,51 @@ public class Game implements Initializable {
         updateCanvas();
     }
 
-    public void updateCanvas() {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        gc.setFill(Color.rgb(10,165,200));
-        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    public void initScreenValue(){
+        A = 0.5 * TILE_SIZE;
+        B = -0.5 * TILE_SIZE;
+        C = 0.25 * TILE_SIZE;
+        D = 0.25 * TILE_SIZE;
 
-        drawMap(gc);
+        double det = 1 / (A * D - B * C);
+
+        A1 = D * det;
+        B1 = -B * det;
+        C1 = -C * det;
+        D1 = A * det;
+    }
+
+    public void updateScreen(){
+        canvas.setWidth(MineSweeper.stage.getWidth());
+        scrollPane.setMinWidth(MineSweeper.stage.getWidth());
+        TILE_SIZE = (int)(canvas.getWidth()/(map.getWidthX() + 8));
+
+        xOffset = canvas.getWidth() / 2 ;
+        yOffset = TILE_SIZE ;
+
+        MineSweeper.getAllSprite((int) TILE_SIZE);
+        initScreenValue();
+
+        scrollPane.setMinHeight(MineSweeper.stage.getHeight());
+        canvas.setHeight(map.getLayersCount() * (TILE_SIZE/2) + map.getWidthX() * (TILE_SIZE/2) + 2 * yOffset);
+
+        updateCanvas();
     }
 
     public void updateCanvas(MouseEvent event) {
         updateCanvas();
     }
 
-    private void drawMap(GraphicsContext gc) {
-        double TILE_SIZE_HALF = TILE_SIZE/2;
-        for (int layer = map.getLayersCount()-1; layer >= currentLayer; layer--) {
-            for (int y = 0; y < map.getWidthY(); y++) {
-                for (int x = 0; x < map.getWidthX(); x++) {
-                    int posX = (int) (x * A + y * B - TILE_SIZE_HALF + xOffset);
-                    int posY = (int) (x * C + y * D + TILE_SIZE_HALF * layer + yOffset);
+    public void updateCanvas() {
+        bombsLeft = countBombLeft();
+        counterMine.setText(String.valueOf(bombsLeft));
 
-                    if (showBombs.isSelected()){
-                        Tile tile = map.getLayer(layer).getTile(x, y);
-                        if (tile.isBomb()) {
-                            gc.drawImage(MineSweeper.tileSprites.get("bomb")[2].getImage(),posX, posY);
-                        }
-                        else {
-                            if (layer == map.getLayersCount()-1)
-                                gc.drawImage(MineSweeper.tileSprites.get("bases")[0].getImage(), posX, posY);
-                            if (x == 0)
-                                gc.drawImage(MineSweeper.tileSprites.get("bases")[1].getImage(), posX, posY);
-                            if (y == 0)
-                                gc.drawImage(MineSweeper.tileSprites.get("bases")[2].getImage(), posX, posY);
-                        }
-                    }
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.setFill(Color.rgb(10,165,200));
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-
-                    else if (!isEnd()) {
-                        Tile tile = map.getLayer(layer).getTile(x, y);
-
-                        //draw cube
-                        ImageView tileSprite = MineSweeper.tileSprites.get(tile.getTexture())[tile.getGraphic().getVariation()];
-                        if (tileSprite != null) {
-                            gc.drawImage(tileSprite.getImage(), posX, posY);
-                            if (tile.getNbMine() > 0 && layer == currentLayer && isInGame()) {
-                                ImageView numberSprite = MineSweeper.tileSprites.get("numbers")[tile.getNbMine()];
-                                gc.drawImage(numberSprite.getImage(), posX, posY);
-                            }
-                        }
-
-                        //draw decoration
-                        ImageView decoSprite = null;
-                        if (!tile.isRevealed()) {
-                            if (tile.isMarked())
-                                gc.drawImage(MineSweeper.tileSprites.get("flag")[0].getImage(), posX, posY - TILE_SIZE_HALF);
-                            else if (tile.hasDecoration()) {
-                                decoSprite = MineSweeper.tileSprites.get(tile.getGraphic().getDecoration().getFolder())[tile.getGraphic().getDecoration().getVariation()];
-                                if (decoSprite != null)
-                                    gc.drawImage(decoSprite.getImage(), posX + tile.getGraphic().getDecoration().getVx(), posY - TILE_SIZE_HALF + tile.getGraphic().getDecoration().getVy());
-                            }
-                        }
-
-
-                        //draw decoration of the layer under the current one (to fix some perspectives issues)
-                        else if (layer + 1 <= map.getLayersCount() - 1 && !map.getLayer(layer + 1).getTile(x, y).isRevealed()) {
-                            tile = map.getLayer(layer + 1).getTile(x, y);
-                            double posY_deco = x * C + y * D + TILE_SIZE_HALF * (layer + 1) - TILE_SIZE_HALF + yOffset;
-
-                            if (tile.isMarked()) {
-                                decoSprite = MineSweeper.tileSprites.get("flag")[0];
-                                gc.drawImage(decoSprite.getImage(), posX, posY_deco);
-                            } else if (tile.hasDecoration()) {
-                                decoSprite = MineSweeper.tileSprites.get(tile.getGraphic().getDecoration().getFolder())[tile.getGraphic().getDecoration().getVariation()];
-                                if (decoSprite != null)
-                                    gc.drawImage(decoSprite.getImage(), posX + tile.getGraphic().getDecoration().getVx(), posY_deco + tile.getGraphic().getDecoration().getVy());
-                            }
-                        }
-
-
-                        if (particleSprite[layer][y][x] != 0) {
-                            gc.drawImage(MineSweeper.tileSprites.get("explode")[particleSprite[layer][y][x] - 1].getImage(), posX, posY - TILE_SIZE_HALF);
-                        }
-                    }
-                }
-            }
-        }
+        drawMap(gc);
     }
 
     public void updateMap(MouseEvent event) {
@@ -270,7 +225,7 @@ public class Game implements Initializable {
         int posX = (int) (x * A1 + y * B1 - currentLayer);
         int posY = (int) (x * C1 + y * D1 - currentLayer);
 
-        if (posX >= 0 && posY >= 0 && posY < map.getWidthY() && posX < map.getWidthX()) {
+        if (posX >= 0 && posY >= 0 && posY < map.getWidthY() && posX < map.getWidthX() && (isInGame() || isInitialize())) {
             if (event.getButton() == MouseButton.SECONDARY) {
                 map.getLayer(currentLayer).getTile(posX, posY).setMarked(
                         !map.getLayer(currentLayer).getTile(posX, posY).isMarked()
@@ -285,10 +240,103 @@ public class Game implements Initializable {
                     bombs.add(new int[]{currentLayer, posY, posX});
                     currentLayer = 0;
                     endGame();
+                    animationThread();
                 }
             }
         }
         updateCanvas(event);
+    }
+
+    public boolean optimisation(int x, int y, int z){
+        if (switchOpti.isSelected())
+            return (
+                    (y == map.getWidthY()-1 || x == map.getWidthX()-1 || z == currentLayer) ||  //except last layer
+                    (   //don't show hidden sprites
+                        z - 1 >= currentLayer
+                        && y + 1 < map.getWidthY()
+                        && x + 1 < map.getWidthX()
+                        && map.getLayer(z - 1).getTile(x + 1, y + 1).isRevealed()
+                    ));
+        else return true;
+    }
+
+    private void drawMap(GraphicsContext gc) {
+        spriteCount = 0;
+        double TILE_SIZE_HALF = TILE_SIZE/2;
+        for (int layer = map.getLayersCount()-1; layer >= currentLayer; layer--) {
+            for (int y = 0; y < map.getWidthY(); y++) {
+                for (int x = 0; x < map.getWidthX(); x++) {
+                    int posX = (int) (x * A + y * B - TILE_SIZE_HALF + xOffset);
+                    int posY = (int) (x * C + y * D + TILE_SIZE_HALF * layer + yOffset);
+
+                    if (showBombs.isSelected()){
+                        Tile tile = map.getLayer(layer).getTile(x, y);
+                        if (tile.isBomb())
+                            drawSprite(gc,"bomb",2,posX, posY);
+                        else {
+                            if (layer == map.getLayersCount()-1)
+                                drawSprite(gc,"bases",0, posX, posY);
+                            if (x == 0)
+                                drawSprite(gc,"bases",1, posX, posY);
+                            if (y == 0)
+                                drawSprite(gc,"bases",2, posX, posY);
+                        }
+                    }
+
+                    else if (!isEnd() && optimisation(x,y,layer)){
+                        Tile tile = map.getLayer(layer).getTile(x, y);
+
+                        //draw cube
+                        drawSprite(gc,tile.getTexture(),tile.getGraphic().getVariation(), posX, posY);
+
+                        //draw numbers
+                        if (tile.getNbMine() > 0 && layer == currentLayer && isInGame())
+                            drawSprite(gc,"numbers",tile.getNbMine(), posX, posY);
+
+                        //draw decoration
+                        ImageView decoSprite;
+                        if (!tile.isRevealed()) {
+                            if (tile.isMarked())
+                                drawSprite(gc,"flag",0, posX, posY - TILE_SIZE_HALF);
+
+                            else if (tile.hasDecoration())
+                                drawSprite(gc,
+                                        tile.getGraphic().getDecoration().getFolder(),
+                                        tile.getGraphic().getDecoration().getVariation(),
+                                        posX + tile.getGraphic().getDecoration().getVx(),
+                                        posY - TILE_SIZE_HALF + tile.getGraphic().getDecoration().getVy());
+                        }
+
+                        //draw decoration of the layer under the current one (to fix some perspectives issues)
+                        else if (layer + 1 <= map.getLayersCount() - 1 && !map.getLayer(layer + 1).getTile(x, y).isRevealed()) {
+                            tile = map.getLayer(layer + 1).getTile(x, y);
+                            double posY_deco = x * C + y * D + TILE_SIZE_HALF * (layer + 1) - TILE_SIZE_HALF + yOffset;
+
+                            if (tile.isMarked())
+                                drawSprite(gc,"flag",0, posX, posY_deco);
+
+                            else if (tile.hasDecoration())
+                                drawSprite(gc,
+                                        tile.getGraphic().getDecoration().getFolder(),
+                                        tile.getGraphic().getDecoration().getVariation(),
+                                        posX + tile.getGraphic().getDecoration().getVx(),
+                                        posY_deco + tile.getGraphic().getDecoration().getVy());
+                        }
+
+                        if (particleSprite[layer][y][x] != 0)
+                            drawSprite(gc,"explode",particleSprite[layer][y][x] - 1, posX, posY - TILE_SIZE_HALF);
+
+                    }
+                }
+            }
+        }
+        System.out.println(spriteCount + " -> Game");
+    }
+
+    public static void drawSprite(GraphicsContext gc, String str, int var, double posX, double posY){
+        Image img = MineSweeper.tileSprites.get(str)[var].getImage();
+        gc.drawImage(img,posX,posY);
+        spriteCount ++;
     }
 
     public boolean contains(ArrayList<int[]> bombs, int[] bomb){
@@ -334,6 +382,25 @@ public class Game implements Initializable {
                     }
                 }
         return false;
+    }
+
+    public int countBombLeft(){
+        if (isInitialize())
+            return map.getNbBombs();
+        if (isInLose() || isEnd())
+            return 0;
+
+        int tpm = 0;
+        for (int z = 0; z < map.getLayersCount(); z ++)
+            for (int y = 0; y < map.getWidthY(); y ++)
+                for (int x = 0; x < map.getWidthX(); x++) {
+                    if (map.getDemineur().getTile(x, y, z).isBomb())
+                        tpm++;
+                    if (map.getDemineur().getTile(x, y, z).isMarked() && tpm > 0){
+                        tpm --;
+                    }
+                }
+        return tpm;
     }
 
     public void explode(int posZ, int posY, int posX){

@@ -86,8 +86,6 @@ public class MineSweeper extends Application {
         stage.setScene(scene);
         stage.show();
         stage.setOnCloseRequest(event -> System.exit(0));
-        stage.setMaximized(false);
-        stage.setMaximized(true);
     }
 
     public static void launch(String[] args) {
