@@ -14,8 +14,7 @@ import java.util.ResourceBundle;
 
 public class Setting implements Initializable {
     public Canvas canvas;
-    public Button playButton;
-    public Button settingButton;
+    public Button backButton;
 
 
     public Setting() {
@@ -30,9 +29,10 @@ public class Setting implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         canvas.setOnMouseMoved(this::updateCanvas);
         canvas.setOnMouseClicked(this::updateCanvas);
+        backButton.setOnMouseClicked(this::mainMenu);
     }
 
-    public void mainMenu(ActionEvent actionEvent) {
+    private void mainMenu(MouseEvent mouseEvent) {
         MineSweeper.mainMenu();
     }
 
@@ -46,7 +46,7 @@ public class Setting implements Initializable {
         gc.setFill(Color.rgb(10,165,200));
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        drawMap(gc, -1, -1);
+        drawMap(gc);
     }
 
     public void updateCanvas(MouseEvent event) {
@@ -57,7 +57,7 @@ public class Setting implements Initializable {
         //drawMap(gc, mapPosX, mapPosY);
     }
 
-    private void drawMap(GraphicsContext gc, int mapPosX, int mapPosY) {
+    private void drawMap(GraphicsContext gc) {
 
     }
 

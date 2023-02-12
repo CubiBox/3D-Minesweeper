@@ -1,6 +1,8 @@
 package fr.celestgames.isoworlds.level;
 
-public enum TileType {
+import java.io.Serializable;
+
+public enum TileType implements Serializable {
     VOID("void"),
     CUBE("cube"),
     BOMB("bomb");

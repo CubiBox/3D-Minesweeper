@@ -1,8 +1,9 @@
 package fr.celestgames.isoworlds.level;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Graphic {
+public class Graphic implements Serializable {
     private Decoration decoration;
     private byte variation;
     private String texture;

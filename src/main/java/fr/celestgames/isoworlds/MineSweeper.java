@@ -1,36 +1,43 @@
 package fr.celestgames.isoworlds;
 
+import fr.celestgames.isoworlds.controllers.Custom;
 import fr.celestgames.isoworlds.controllers.Game;
+import fr.celestgames.isoworlds.level.Map;
 import javafx.application.Application;
-import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import javax.swing.text.Style;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 
 public class MineSweeper extends Application {
-    public static int selectDifficulty;
+    public static int selectDifficulty = 0;
 
     public static Stage stage;
-    public static Scene mainMenu;
-    public static Scene game;
-    public static Scene settings;
-    public static Scene custom;
+
     public static Scene scene;
 
     public static HashMap<String, ImageView[]> tileSprites = new HashMap<>();
-
+    public static Map map;
+    public static String globalStyle;
 
 
     @Override
     public void start(Stage stage) {
+        globalStyle = getClass().getResource("style.css").toExternalForm();
         MineSweeper.stage = stage;
-        goToPage("menu");
+        goToPage("start");
     }
 
     public static void mainMenu(){
@@ -38,6 +45,21 @@ public class MineSweeper extends Application {
     }
 
     public static void play(){
+        map = switch (selectDifficulty) {
+            case 0 :
+                Map easyMap = Map.voidMap(5,5);
+                easyMap.setNbBombs(10);
+                yield easyMap;
+            case 1 :
+                Map mediumMap = Map.voidMap(8,10);
+                mediumMap.setNbBombs(50);
+                yield mediumMap;
+            case 2 :
+                Map hardMap = Map.voidMap(15,15);
+                hardMap.setNbBombs(180);
+                yield hardMap;
+            default : yield Custom.previewMap;
+        };
         goToPage("game");
     }
 
@@ -51,23 +73,21 @@ public class MineSweeper extends Application {
 
     public static void goToPage(String str){
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("scenes/"+str+".fxml"));
-            MineSweeper.scene = new Scene(fxmlLoader.load());
+            Parent root = FXMLLoader.load(MineSweeper.class.getResource("scenes/"+str+".fxml"));
+            MineSweeper.scene = new Scene(root);
         }
         catch(Exception ignored) {}
-        showStage();
-    }
 
-    public static void switchScene(Scene scene){
-        MineSweeper.scene = scene;
         showStage();
     }
 
     public static void showStage(){
+        //scene.getStylesheets().add(globalStyle);
         stage.setScene(scene);
         stage.show();
         stage.setOnCloseRequest(event -> System.exit(0));
-        if (!stage.isMaximized()) stage.setMaximized(true);
+        stage.setMaximized(false);
+        stage.setMaximized(true);
     }
 
     public static void launch(String[] args) {
@@ -76,7 +96,7 @@ public class MineSweeper extends Application {
 
 
     public static void getAllSprite(int TILE_SIZE){
-        File folder = new File(Main.class.getResource("textures").getFile());
+        File folder = new File(MineSweeper.class.getResource("textures").getFile());
         File[] listOfFiles = folder.listFiles();
 
         assert listOfFiles != null;

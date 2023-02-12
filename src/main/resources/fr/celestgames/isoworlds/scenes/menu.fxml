@@ -3,26 +3,52 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="480.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.Menu">
-   <center>
-        <VBox prefHeight="455.0" prefWidth="220.0" BorderPane.alignment="CENTER">
-             <VBox alignment="TOP_CENTER" prefHeight="85.0" prefWidth="220.0">
-                <children>
-                  <Label text="MineSweeper">
-                  <font>
-                     <Font size="48.0" />
-                  </font>
-               </Label>
-                   <Button fx:id="playButton" minWidth="200.0" mnemonicParsing="false" text="Play" />
-                   <Button fx:id="settingButton" minWidth="200.0" mnemonicParsing="false"  text="Setting" />
-               <Button fx:id="customButton" minWidth="200.0" mnemonicParsing="false" text="Custom" />
-                </children>
-             </VBox>
-         <Canvas fx:id="canvas" height="200.0" width="200.0" />
-        </VBox>
-   </center>
-</BorderPane>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #0AA4C7;" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.Menu">
+   <children>
+      <ScrollPane fx:id="base" hbarPolicy="NEVER" prefHeight="400.0" prefWidth="600.0" vbarPolicy="NEVER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <content>
+            <Canvas fx:id="background" height="400.0" width="600.0" />
+         </content>
+      </ScrollPane>
+      <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="380.0" prefWidth="582.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label text="MINESWEEPER" textFill="WHITE">
+               <font>
+                  <Font size="64.0" />
+               </font>
+            </Label>
+            <VBox alignment="CENTER" prefHeight="297.0" prefWidth="600.0">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="70.0">
+                     <children>
+                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0">
+                           <children>
+                              <Label text="PLAY !" textFill="WHITE" />
+                              <Button id="menuButton" fx:id="playEasyButton" minWidth="200.0" mnemonicParsing="false" text="Easy game" />
+                              <Button id="menuButton" fx:id="playMediumButton" minWidth="200.0" mnemonicParsing="false" text="Medium game" />
+                              <Button id="menuButton" fx:id="playHardButton" minWidth="200.0" mnemonicParsing="false" text="Are you sure about that ?" />
+                              <Button id="menuButton" fx:id="customButton" minWidth="200.0" mnemonicParsing="false" text="Custom (play as you want)" />
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0">
+                           <children>
+                              <Label text="Other things ..." textFill="WHITE" />
+                              <Button id="menuButton" fx:id="settingButton" minWidth="200.0" mnemonicParsing="false" text="Setting" />
+                              <Button id="menuButton" fx:id="recordButton" minWidth="200.0" mnemonicParsing="false" text="Records" />
+                              <Button id="menuButton" fx:id="aboutButton" minWidth="200.0" mnemonicParsing="false" text="About this beautiful game" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

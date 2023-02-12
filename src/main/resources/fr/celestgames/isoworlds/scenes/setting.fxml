@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="480.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.Setting">
+<BorderPane prefHeight="480.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.Setting">
    <center>
         <VBox prefHeight="455.0" prefWidth="220.0" BorderPane.alignment="CENTER">
          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
@@ -45,7 +45,7 @@
              </VBox>
          <VBox alignment="BOTTOM_RIGHT" prefHeight="117.0" prefWidth="720.0">
             <children>
-                   <Button fx:id="playButton" minWidth="150.0" mnemonicParsing="false" onAction="#play" prefHeight="45.0" prefWidth="150.0" text="back" />
+                   <Button fx:id="backButton" minWidth="150.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="150.0" text="back" />
             </children>
          </VBox>
         </VBox>

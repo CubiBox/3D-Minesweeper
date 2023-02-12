@@ -3,9 +3,10 @@ package fr.celestgames.isoworlds.level;
 import fr.celestgames.isoworlds.MineSweeper;
 import fr.celestgames.isoworlds.controllers.Game;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Decoration {
+public class Decoration implements Serializable {
     private String folder;
     private String decoration;
     private byte variation;

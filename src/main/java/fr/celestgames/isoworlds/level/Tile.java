@@ -1,6 +1,8 @@
 package fr.celestgames.isoworlds.level;
 
-public class Tile {
+import java.io.Serializable;
+
+public class Tile implements Serializable {
     private TileType value;
     private boolean isRevealed;
     private boolean isBomb;

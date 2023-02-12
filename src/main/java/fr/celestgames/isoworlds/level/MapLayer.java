@@ -1,6 +1,8 @@
 package fr.celestgames.isoworlds.level;
 
-public class MapLayer {
+import java.io.Serializable;
+
+public class MapLayer implements Serializable {
     private final int width;
     private final int height;
     private Tile[][] tiles;
