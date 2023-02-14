@@ -62,10 +62,9 @@ public class Map implements Serializable {
     public void decorateMap(MapLayer[] layers) {
         this.isDecorate = true;
         Random rand = new Random();
+        int deepStoneLayer = height - height/3;
 
-        int deepStoneLayer = height - height /3;
-
-        int r = rand.nextInt(2,(height /4 > 2 ? height /4 : 3));
+        int r = rand.nextInt(2,((height*widthX)/16 > 2 ? (height*widthX)/16 : 3));
         int[][] lodes = new int[r*2][4];
 
         for (int i = 0; i < r; i ++) {
@@ -75,7 +74,7 @@ public class Map implements Serializable {
             int size =  rand.nextInt(1,4);
 
             lodes[i*2] = new int[]{x,y,z,size};
-            lodes[i*2+1] = new int[]{x + rand.nextInt(2),y + rand.nextInt(2),z + rand.nextInt(2),size};
+            lodes[i*2+1] = new int[]{x + rand.nextInt(3),y + rand.nextInt(3),z + rand.nextInt(3),size};
         }
 
         for (int z = 0; z < height; z ++)
@@ -114,7 +113,6 @@ public class Map implements Serializable {
                                 graphic.setDecoration(new Decoration("deeprock","deeprocks"));
                         }
 
-
                         //ores
                         if (isInLode(lodes, x, y, z))
                             graphic.setTexture((z < deepStoneLayer) ? "coal_stone" : "coal_deep");
@@ -124,9 +122,18 @@ public class Map implements Serializable {
                 }
     }
 
+    /**
+     * @param lodes list of spheres with 4 var {x,y,z,rayon}
+     * @param x  coordinate x of the tile
+     * @param y  coordinate y of the tile
+     * @param z  coordinate z of the tile
+     * @return   if the tile is in the sphere list
+     */
     public boolean isInLode(int[][] lodes, int x, int y, int z){
         for (int[] lode : lodes) {
-            int size = lode[3];
+            int size = lode[3]; //as rayon
+
+            //check if x,y and z is on the possibles limits of the lode
             if (
                     x >= 0 && x <= widthX &&
                     y >= 0 && y <= widthY &&

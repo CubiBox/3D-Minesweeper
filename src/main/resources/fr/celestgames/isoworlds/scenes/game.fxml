@@ -49,19 +49,37 @@
             </CheckBox>
          </children>
       </VBox>
-      <HBox alignment="CENTER" prefHeight="33.0" prefWidth="119.0" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">
+      <VBox prefHeight="100.0" prefWidth="131.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label text="Mines left : " textFill="WHITE">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Label fx:id="counterMine" text="0" textFill="WHITE">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
+            <HBox alignment="CENTER" prefHeight="33.0" prefWidth="119.0">
+               <children>
+                  <Label text="Mines left : " textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="counterMine" text="0" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="33.0" prefWidth="119.0">
+               <children>
+                  <Label text="Time : " textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="timerLabel" text="00:00" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
          </children>
-      </HBox>
+      </VBox>
    </children>
 </AnchorPane>

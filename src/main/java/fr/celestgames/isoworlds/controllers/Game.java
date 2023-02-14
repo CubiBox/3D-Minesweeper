@@ -31,13 +31,13 @@ public class Game implements Initializable {
     public Button menuButton;
     public Label counterMine;
     public CheckBox showBombs;
-
     public CheckBox switchOpti;
 
     //global variables
     public static Map map;
     private static int spriteCount;
-
+    private static long timer;
+    public Label timerLabel;
     private int currentLayer;
 
     /**  gameState
@@ -89,7 +89,6 @@ public class Game implements Initializable {
         scrollPane.setMinHeight(map.getLayersCount() * (TILE_SIZE/2) + map.getWidthX() * (TILE_SIZE/2) + 2 * yOffset);
         scrollPane.setMinWidth(MineSweeper.stage.getWidth());
 
-
         canvas.setOnMouseClicked(this::updateMap);
         canvas.setOnScroll(this::updateLayer);
         turnLeftButton.setOnMouseClicked(this::rotateMinesweeperLeft);
@@ -104,6 +103,8 @@ public class Game implements Initializable {
         MineSweeper.stage.heightProperty().addListener((obs, oldVal, newVal) -> updateScreen());
 
         updateScreen();
+
+        animationThread();
     }
 
     public void animationThread(){
@@ -111,8 +112,12 @@ public class Game implements Initializable {
             @Override
             public void run() {
                 while (!isEnd()) {
-                    if (isInLose()) {
-                        try { Thread.sleep(50);} catch (InterruptedException ignore) { }
+                    try { Thread.sleep(50);} catch (InterruptedException ignore) { }
+                    if (isInGame()){
+                        timer += 50;
+                        Platform.runLater(() -> updateCanvas());
+                    }
+                    else if (isInLose()) {
                         if (!bombs.isEmpty() || animationsLeft() || bombLeft()) {
                             actualizeParticle();
                             endGame();
@@ -126,6 +131,14 @@ public class Game implements Initializable {
                 }
             }
         }).start();
+    }
+
+    public static String formatTime(){
+        long time = (timer/1000);
+        long seconds = time%60;
+        long minutes = (time/60)%60;
+        long hours = (time/60)/60;
+        return (hours>=1?(hours<10?"0"+hours:hours)+":":"") + (minutes<10?"0"+minutes:minutes) + ":" + (seconds<10?"0"+seconds:seconds);
     }
 
     private void rotateMinesweeperLeft(MouseEvent mouseEvent) {
@@ -151,7 +164,7 @@ public class Game implements Initializable {
     }
 
     private void updateLayer(ScrollEvent e) {
-        if (isInGame()) {
+        if (isInGame() || isInitialize()) {
             if (e.getDeltaY() > 0 && currentLayer - 1 >= 0)
                 currentLayer--;
             else if (e.getDeltaY() < 0 && currentLayer + 1 < map.getLayers().length)
@@ -202,13 +215,10 @@ public class Game implements Initializable {
         updateCanvas();
     }
 
-    public void updateCanvas(MouseEvent event) {
-        updateCanvas();
-    }
-
     public void updateCanvas() {
         bombsLeft = countBombLeft();
         counterMine.setText(String.valueOf(bombsLeft));
+        timerLabel.setText(formatTime());
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -240,11 +250,10 @@ public class Game implements Initializable {
                     bombs.add(new int[]{currentLayer, posY, posX});
                     currentLayer = 0;
                     endGame();
-                    animationThread();
                 }
             }
         }
-        updateCanvas(event);
+        updateCanvas();
     }
 
     public boolean optimisation(int x, int y, int z){
@@ -290,7 +299,7 @@ public class Game implements Initializable {
                         drawSprite(gc,tile.getTexture(),tile.getGraphic().getVariation(), posX, posY);
 
                         //draw numbers
-                        if (tile.getNbMine() > 0 && layer == currentLayer && isInGame())
+                        if (tile.getNbMine() > 0 && layer == currentLayer && (isInGame() || isInitialize()))
                             drawSprite(gc,"numbers",tile.getNbMine(), posX, posY);
 
                         //draw decoration
@@ -404,6 +413,7 @@ public class Game implements Initializable {
     }
 
     public void explode(int posZ, int posY, int posX){
+        //if posZ, posY and posX isn't out of bound
         if (posZ > 0 && posY > 0 && posX > 0) {
             if (map.getDemineur().getTile(posX, posY, posZ).isRevealed() && !bombs.isEmpty())
                 bombs.remove(0);
@@ -411,8 +421,11 @@ public class Game implements Initializable {
             map.getDemineur().getTile(posX, posY, posZ).setRevealed(true);
             map.getDemineur().getTile(posX, posY, posZ).getGraphic().setVariation(8);
         }
+
+        //set explode area (pos of bomb with rayon of 6)
         int[][] explode_area = {{posX,posY,posZ,6}};
 
+        //parkour map to find explode area
         for (int z = 0; z < map.getLayersCount(); z ++)
             for (int y = 0; y < map.getWidthY(); y ++)
                 for (int x = 0; x < map.getWidthX(); x ++) {
@@ -424,15 +437,20 @@ public class Game implements Initializable {
 
                     //explosion
                     if (map.isInLode(explode_area, x,y,z) && !bombs.isEmpty()) {
+
+                        //if is bomb, add him to the pile
                         if (t.isBomb() && !t.isRevealed()) {
                             t.setValue(TileType.BOMB);
                             int[] tmp = {z, y, x};
                             if (!contains(bombs,tmp))
                                 bombs.add(tmp);
                         }
+
+                        //clear usual cube
                         else if (!t.isBomb())
                             t.setValue(TileType.VOID);
 
+                        //set particle of explosion
                         if (particleSprite[z][y][x] == 0 && new Random().nextInt(0,40) == 1)
                             particleSprite[z][y][x] = (byte) new Random().nextInt(3,8);
 
@@ -462,12 +480,11 @@ public class Game implements Initializable {
      *      2 : inLose
      *      3 : end
      */
-
     public boolean isInitialize(){
         return gameSate == 0;
     }
     public boolean isInGame(){
-        return gameSate == 1 || isInitialize();
+        return gameSate == 1;
     }
     public boolean isInLose(){
         return gameSate == 2;

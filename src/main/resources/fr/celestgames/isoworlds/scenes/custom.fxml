@@ -8,19 +8,19 @@
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Slider?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #0AA4C7;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.Custom">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #0AA4C7;" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.celestgames.isoworlds.controllers.Custom">
    <children>
       <VBox prefHeight="406.0" prefWidth="600.0">
          <children>
             <HBox prefHeight="401.0" prefWidth="600.0">
                <children>
-                  <VBox alignment="TOP_CENTER" prefHeight="305.0" prefWidth="370.0" spacing="10.0">
+                  <VBox alignment="TOP_CENTER" prefHeight="401.0" prefWidth="290.0" spacing="10.0">
                      <children>
                         <Label prefHeight="110.0" prefWidth="123.0" text="Custom">
                            <font>
@@ -42,7 +42,7 @@
                         <HBox alignment="CENTER" prefHeight="40.0" prefWidth="370.0" spacing="50.0">
                            <children>
                               <Label prefHeight="17.0" prefWidth="109.0" text="Bombs" />
-                              <TextField fx:id="bombsInput" prefHeight="25.0" prefWidth="103.0" />
+                              <Spinner fx:id="bombsInput" editable="true" prefHeight="25.0" prefWidth="105.0" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="40.0" prefWidth="370.0" spacing="50.0">
@@ -76,6 +76,12 @@
                            </children>
                         </VBox>
                      </children>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                     <padding>
+                        <Insets left="10.0" right="10.0" />
+                     </padding>
                   </VBox>
                   <VBox alignment="BOTTOM_RIGHT" prefHeight="190.0" prefWidth="230.0" />
                </children>

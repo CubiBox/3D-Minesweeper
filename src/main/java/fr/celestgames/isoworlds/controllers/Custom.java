@@ -18,18 +18,18 @@ import java.util.ResourceBundle;
 public class Custom implements Initializable {
     public Button playButton;
     public Button backButton;
-    public TextField bombsInput;
+    public Spinner<Integer> bombsInput;
     public MenuButton biomeInput;
     public Canvas preview;
     public Slider widthSlider;
     public Slider heightSlider;
+    public CheckBox showBombs;
 
     public static Map previewMap;
-    public CheckBox showBombs;
+    public static int nbBombs;
     private double TILE_SIZE = 0;
 
     private double A, B, C, D;
-
     private double xOffset = 0;
     private double yOffset = 0;
 
@@ -37,14 +37,29 @@ public class Custom implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         xOffset = preview.getLayoutX();
         yOffset = preview.getLayoutY();
-        widthSlider.setOnMouseDragged(this::updatePreview);
-        heightSlider.setOnMouseDragged(this::updatePreview);
-        biomeInput.setOnKeyReleased(this::updatePreview);
-        bombsInput.setOnKeyReleased(this::updatePreview);
-        backButton.setOnMouseClicked(this::mainMenu);
-        playButton.setOnMouseClicked(this::play);
-        showBombs.setOnMouseClicked(this::updatePreview);
 
+        //listener
+        widthSlider.setOnMouseDragged(e->{updatePreview();});
+        heightSlider.setOnMouseDragged(e->{updatePreview();});
+        biomeInput.setOnKeyReleased(e->{updatePreview();});
+        showBombs.setOnMouseClicked(e->{updatePreview();});
+
+        backButton.setOnMouseClicked(e->{MineSweeper.mainMenu();});
+        bombsInput.setOnKeyReleased(e->{checkBombs();});
+        playButton.setOnMouseClicked(e->{play();});
+
+        //nbBombs = Integer.parseInt(bombsInput.getText());
+
+        updatePreview();
+    }
+
+    private void checkBombs() {
+        if (String.valueOf(bombsInput.getValue()).matches("[0-9]*")){
+
+        }
+        else {
+
+        }
         updatePreview();
     }
 
@@ -99,7 +114,6 @@ public class Custom implements Initializable {
         }
     }
 
-
     public void updatePreview(){
         preview.setWidth((MineSweeper.stage.getWidth()/4)*3);
         preview.setHeight(MineSweeper.stage.getHeight());
@@ -125,19 +139,9 @@ public class Custom implements Initializable {
         drawMap(gc);
     }
 
-    public void updatePreview(MouseEvent event) {
-        updatePreview();
-    }
-    private void updatePreview(KeyEvent keyEvent) {
-        updatePreview();
-    }
-
-    private void mainMenu(MouseEvent mouseEvent) {
-        MineSweeper.mainMenu();
-    }
-
-    public void play(MouseEvent mouseEvent) {
-        previewMap.setNbBombs(128); /*TODO get inputBomb value*/
+    public void play() {
+        previewMap.getDemineur().clearMines(previewMap.getLayers());
+        previewMap.setNbBombs(nbBombs);
         MineSweeper.selectDifficulty = 3;
         MineSweeper.play();
     }

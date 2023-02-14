@@ -46,6 +46,13 @@ public class Demineur implements Serializable {
         }
     }
 
+    public void clearMines(MapLayer[] layers){
+        for (int z = height-1; z >= 0; z --)
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                    layers[z].getTiles()[y][x].setBomb(false);
+    }
+
     public void rotateMinesweeperLeft(){
         for (MapLayer layer : Game.map.getLayers()) {
             int width = layer.getWidth();
