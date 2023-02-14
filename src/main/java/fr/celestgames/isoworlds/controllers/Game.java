@@ -11,9 +11,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import javax.swing.*;
@@ -36,8 +39,14 @@ public class Game implements Initializable {
     //global variables
     public static Map map;
     private static int spriteCount;
+    private static int fpsCount;
+    private static int fpsCountMem;
     private static long timer;
+    private static long startTime;
     public Label timerLabel;
+    public VBox debugMenu;
+    public Label debugContent;
+    public AnchorPane base;
     private int currentLayer;
 
     /**  gameState
@@ -91,6 +100,11 @@ public class Game implements Initializable {
 
         canvas.setOnMouseClicked(this::updateMap);
         canvas.setOnScroll(this::updateLayer);
+        base.setOnKeyPressed(e->{
+            if(e.getCode()== KeyCode.F3) {
+                debugMenu.setVisible(!debugMenu.isVisible());
+            }
+        });
         turnLeftButton.setOnMouseClicked(this::rotateMinesweeperLeft);
         turnRightButton.setOnMouseClicked(this::rotateMinesweeperRight);
         menuButton.setOnMouseClicked(this::mainMenu);
@@ -113,8 +127,9 @@ public class Game implements Initializable {
             public void run() {
                 while (!isEnd()) {
                     try { Thread.sleep(50);} catch (InterruptedException ignore) { }
+                    timer += 50;
+
                     if (isInGame()){
-                        timer += 50;
                         Platform.runLater(() -> updateCanvas());
                     }
                     else if (isInLose()) {
@@ -210,7 +225,8 @@ public class Game implements Initializable {
         initScreenValue();
 
         scrollPane.setMinHeight(MineSweeper.stage.getHeight());
-        canvas.setHeight(map.getLayersCount() * (TILE_SIZE/2) + map.getWidthX() * (TILE_SIZE/2) + 2 * yOffset);
+
+        canvas.setHeight(Math.max(map.getLayersCount() * (TILE_SIZE / 2) + map.getWidthX() * (TILE_SIZE / 2) + 2 * yOffset, MineSweeper.stage.getHeight()));
 
         updateCanvas();
     }
@@ -219,6 +235,8 @@ public class Game implements Initializable {
         bombsLeft = countBombLeft();
         counterMine.setText(String.valueOf(bombsLeft));
         timerLabel.setText(formatTime());
+        if (debugMenu.isVisible())
+            debugContent.setText(actuDebug());
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -339,7 +357,20 @@ public class Game implements Initializable {
                 }
             }
         }
-        System.out.println(spriteCount + " -> Game");
+        fpsCount ++;
+    }
+
+    public String actuDebug(){
+        if (timer%1000==0) {
+            fpsCountMem = fpsCount;
+            fpsCount=0;
+        }
+        return
+            "FPS : " + fpsCountMem + "\n" +
+            "sprites : " + spriteCount + "\n" +
+            "TPS : " + "" + "\n" +
+            "screen size : " + MineSweeper.stage.getWidth() + " * " + MineSweeper.stage.getHeight() + "px\n" +
+            "GameState : " + gameSate + "\n";
     }
 
     public static void drawSprite(GraphicsContext gc, String str, int var, double posX, double posY){
