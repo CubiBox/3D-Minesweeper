@@ -5,10 +5,10 @@ module net.ddns.celestgames.isometric_graphics {
     requires com.almasb.fxgl.all;
     requires java.desktop;
 
-    opens fr.celestgames.isoworlds to javafx.fxml;
-    exports fr.celestgames.isoworlds;
-    exports fr.celestgames.isoworlds.level;
-    opens fr.celestgames.isoworlds.level to javafx.fxml;
-    exports fr.celestgames.isoworlds.controllers;
-    opens fr.celestgames.isoworlds.controllers to javafx.fxml;
+    exports fr.cubibox.minesweeper.level;
+    opens fr.cubibox.minesweeper.level to javafx.fxml;
+    exports fr.cubibox.minesweeper.controllers;
+    opens fr.cubibox.minesweeper.controllers to javafx.fxml;
+    exports fr.cubibox.minesweeper;
+    opens fr.cubibox.minesweeper to javafx.fxml;
 }
