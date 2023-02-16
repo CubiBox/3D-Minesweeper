@@ -2,7 +2,7 @@ package fr.cubibox.minesweeper.level;
 
 import java.io.Serializable;
 
-public class MapLayer implements Serializable {
+public class MapLayer {
     private final int width;
     private final int height;
     private Tile[][] tiles;

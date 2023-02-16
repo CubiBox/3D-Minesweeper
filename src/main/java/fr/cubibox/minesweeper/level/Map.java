@@ -1,13 +1,16 @@
 package fr.cubibox.minesweeper.level;
 
 
+import fr.cubibox.minesweeper.MineSweeper;
 import fr.cubibox.minesweeper.minesweeper.Demineur;
 import fr.cubibox.minesweeper.minesweeper.PerlinNoise;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
-public class Map implements Serializable {
+public class Map {
     @Serial
     private static final long serialVersionUID = 1350092881346723535L;
     private Demineur demineur;
@@ -28,6 +31,16 @@ public class Map implements Serializable {
             layers[i] = new MapLayer(widthX,widthY);
     }
 
+    public Map(int width, int height, int nbBombs, boolean isDecorate, MapLayer[] layers) {
+        this.widthX = width;
+        this.widthY = width;
+        this.height= height;
+        this.nbBombs = nbBombs;
+        this.isDecorate = isDecorate;
+        this.layers = layers;
+    }
+
+
     public MapLayer[] getLayers() {
         return layers;
     }
@@ -46,17 +59,6 @@ public class Map implements Serializable {
         Map map = new Map(width, height);
         map.setDemineur(new Demineur(map.getLayers()));
         return map;
-    }
-
-    public static void save(Map map) throws IOException {
-        FileOutputStream file = new FileOutputStream("src\\main\\resources\\fr\\celestgames\\isoworlds\\saves\\map.ser"); // MineSweeper.class.getResource("scenes/"+str+".fxml")
-
-        ObjectOutputStream oos = new ObjectOutputStream(file);
-        oos.writeObject(map);
-        oos.writeUTF("here");
-        oos.flush();
-        oos.close();
-
     }
 
     public void decorateMap(MapLayer[] layers) {
@@ -189,10 +191,90 @@ public class Map implements Serializable {
             }
     }
 
+    /**
+     * @param map
+     *
+     *     int height
+     *     int widthX;
+     *     int widthY;
+     *     int nbBombs;
+     *     boolean isDecorate;
+     *     MapLayer[] layers
+     *          Tile[][] tiles
+     *              TileType value;
+     *              boolean isRevealed;
+     *              boolean isBomb;
+     *              byte nbMine;
+     *              boolean isMarked;
+     *              Graphic graphic;
+     *                  byte variation;
+     *                  String texture;
+     *                  Decoration decoration;
+     *                      String folder;
+     *                      String decoration;
+     *                      byte variation;
+     *                      byte vx;
+     *                      byte vy;
+     *
+     */
+    public static void save(Map map) {
+        try {
+            FileWriter file = new FileWriter("saves/map.ser");
+            file.write("Files in Java might be tricky, but it is fun enough!" + "\n" + file.toString());
+            file.close();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        recover(":[10,10,10,true];");
+    }
+
+    public static Map recover(String str) {
+        String[] content = str.split(";")[0].split("]|\\[")[1].split(",");
+        int width = Integer.parseInt(content[0]);
+        int height = Integer.parseInt(content[1]);
+        int nbBomb = Integer.parseInt(content[2]);
+        boolean isDecorate = Boolean.parseBoolean(content[3]);
+
+        System.out.println(width + "; " + height + "; " + nbBomb + "; " + isDecorate);
+
+        //maplayers
+
+        MapLayer[] layers = new MapLayer[height];
+        String[] strTilesTab = str.split("\"TilesTab\":");
+
+        int mapLayerIndex = 0;
+        for (String strTab : strTilesTab){
+            Tile[][] tiles = new Tile[width][width];
+            String[] strTiles = strTab.split("\"Tiles\":");
+
+            for (String strTile : strTiles){
+                String[] strTileAttributs = strTile.split("\"Tile\":");
+
+            }
+            layers[mapLayerIndex].setTiles(tiles);
+            mapLayerIndex ++;
+        }
+
+
+        return new Map(width,height, nbBomb, true,layers);
+    }
+
+
+    public static Tile extractTile(String str){
+        return null;
+    }
+
+    public static ArrayList extractArray(String type, String str) throws ClassNotFoundException {
+        Class<?> cls = Class.forName(type);
+        return null;
+    }
+
+
+
     public void applyHeightMap(int height){
         applyHeightMap(new Random().nextInt(Integer.MAX_VALUE),height);
     }
-
 
     public Demineur getDemineur() {
         return demineur;
@@ -220,7 +302,6 @@ public class Map implements Serializable {
     public void setNbBombs(int nbBombs) {
         this.nbBombs = nbBombs;
     }
-
     public int getHeight() {
         return height;
     }

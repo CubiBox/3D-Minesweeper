@@ -166,11 +166,7 @@ public class Game implements Initializable {
     }
 
     void save(MouseEvent mouseEvent) {
-        try {
-            Map.save(map);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Map.save(map);
     }
     private void rotateMinesweeperRight(MouseEvent mouseEvent) {
         map.getDemineur().rotateMinesweeperRight();
