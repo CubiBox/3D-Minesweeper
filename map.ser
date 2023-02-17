@@ -1,14 +1,13 @@
-"head":[10,10,10,10,true];
-
-"maplayer":{//MapLayers[]
-    "Tiles":{//Tile[][]
-        {//Tile[]
-            "Tile":[//Tile
-                "TileType":"CUBE",
-                "isrevealed":true,
-                "isbomb":true,
-                "nbmine":8,
-                "ismarked":true,
+"head":[10,10,10,true],
+"MapLayer":[
+    "Tile[][]":[
+        "Tile[]":[
+            "Tile":{
+                "value":"CUBE",
+                "isRevealed":true,
+                "isBomb":true,
+                "nbMine":8,
+                "isMarked":true,
                 "Graphic":{
                     "variation":0,
                     "texture":"grass_block",
@@ -20,63 +19,13 @@
                         "vy":3
                     }
                 }
-            ],
-            "Tile":[//Tile
-                "TileType":"CUBE",
-                "isrevealed":true,
-                "isbomb":true,
-                "nbmine":8,
-                "ismarked":true,
-                "Graphic":{
-                    "variation":0,
-                    "texture":"grass_block",
-                    "Decoration":{
-                        "folder":"",
-                        "decoration":"",
-                        "variation":0,
-                        "vx":2,
-                        "vy":3
-                    }
-                }
-            ]
-        },
-        {
-            "Tile":[//Tile
-                "TileType":"CUBE",
-                "isrevealed":true,
-                "isbomb":true,
-                "nbmine":8,
-                "ismarked":true,
-                "Graphic":{
-                    "variation":0,
-                    "texture":"grass_block",
-                    "Decoration":{
-                        "folder":"",
-                        "decoration":"",
-                        "variation":0,
-                        "vx":2,
-                        "vy":3
-                    }
-                }
-            ],
-            "Tile":[//Tile
-                "TileType":"CUBE",
-                "isrevealed":true,
-                "isbomb":true,
-                "nbmine":8,
-                "ismarked":true,
-                "Graphic":{
-                    "variation":0,
-                    "texture":"grass_block",
-                    "Decoration":{
-                        "folder":"",
-                        "decoration":"",
-                        "variation":0,
-                        "vx":2,
-                        "vy":3
-                    }
-                }
-            ]
-        }
-    }
-}
+            },
+            {...},
+            {...},
+            {...}
+        ],
+        "Tile":[...],
+        "Tile":[...],
+        "Tile":[...]
+    ]
+]

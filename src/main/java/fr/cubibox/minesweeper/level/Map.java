@@ -220,44 +220,59 @@ public class Map {
     public static void save(Map map) {
         try {
             FileWriter file = new FileWriter("saves/map.ser");
-            file.write("Files in Java might be tricky, but it is fun enough!" + "\n" + file.toString());
+            file.write(map.extractData());
             file.close();
         }
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-        recover(":[10,10,10,true];");
+
+
+        //recover(":[10,10,10,true];");
     }
 
     public static Map recover(String str) {
+        //header
         String[] content = str.split(";")[0].split("]|\\[")[1].split(",");
         int width = Integer.parseInt(content[0]);
         int height = Integer.parseInt(content[1]);
-        int nbBomb = Integer.parseInt(content[2]);
+        int nbBombs = Integer.parseInt(content[2]);
         boolean isDecorate = Boolean.parseBoolean(content[3]);
 
-        System.out.println(width + "; " + height + "; " + nbBomb + "; " + isDecorate);
+        System.out.println(width + "; " + height + "; " + nbBombs + "; " + isDecorate);
+
+
+        ArrayList<Byte> statusPile = new ArrayList<>();
 
         //maplayers
 
         MapLayer[] layers = new MapLayer[height];
-        String[] strTilesTab = str.split("\"TilesTab\":");
+
+
+        String[] strTilesTab = str.split("\"Tile\\[]\\[]\":");
 
         int mapLayerIndex = 0;
         for (String strTab : strTilesTab){
             Tile[][] tiles = new Tile[width][width];
-            String[] strTiles = strTab.split("\"Tiles\":");
 
+            String[] strTiles = strTab.split("\"Tile\\[]\":");
+            int tileIndexY = 0;
             for (String strTile : strTiles){
                 String[] strTileAttributs = strTile.split("\"Tile\":");
 
+                int tileIndexX = 0;
+                for (String tileContent :strTileAttributs) {
+                    tiles[tileIndexY][tileIndexX] = extractTile(tileContent);
+                    tileIndexX ++;
+                }
+                tileIndexY ++;
             }
             layers[mapLayerIndex].setTiles(tiles);
             mapLayerIndex ++;
         }
 
 
-        return new Map(width,height, nbBomb, true,layers);
+        return new Map(width,height, nbBombs, true,layers);
     }
 
 
@@ -265,11 +280,50 @@ public class Map {
         return null;
     }
 
-    public static ArrayList extractArray(String type, String str) throws ClassNotFoundException {
-        Class<?> cls = Class.forName(type);
-        return null;
+    public String extractData(){
+        StringBuilder output = new StringBuilder();
+        StringBuilder mapLayer = new StringBuilder();
+        StringBuilder tilesY;   //Tile[][]
+        StringBuilder tilesX;   //Tile[]
+        StringBuilder tile;     //Tile
+
+        String head = "\"head\":[" + widthX + "," + height + "," + nbBombs + "," + isDecorate +"],\n";
+
+        mapLayer.append("\"MapLayer\":[\n");
+        for (int z = 0; z < height; z ++){
+            tilesY = new StringBuilder("\t\"Tile[][]\":[\n");
+            for (int y = 0; y < widthY; y ++){
+                tilesX = new StringBuilder("\t\t\"Tile[]\":[\n");
+                for (int x = 0; x < widthX; x ++){
+                    String indent = "\t\t\t";
+                    tile = new StringBuilder(indent + "\"Tile\":{\n");
+                    tile.append(indent).append("\ttest");
+                    tilesX
+                            .append(tile)
+                            .append("\n")
+                            .append(indent)
+                            .append(x + 1 >= widthX ? "}" : "},")
+                            .append('\n');
+                }
+                tilesY.append(tilesX).append("\t\t").append(y+1>=widthY ? "]" : "],").append('\n');
+            }
+            mapLayer.append(tilesY).append("\t").append(z+1>=height ? "]" : "],").append('\n');
+        }
+        mapLayer.append(']');
+
+        output.append(head);
+        output.append(mapLayer);
+        return output.toString();
     }
 
+    public static ArrayList extractArray(String type, String str) {
+        Object[] tab = switch (type) {
+            case "Tile" : yield new Tile[10];
+            case "MapLayer" : yield new MapLayer[10];
+            default: yield null;
+        };
+        return null;
+    }
 
 
     public void applyHeightMap(int height){
@@ -279,7 +333,6 @@ public class Map {
     public Demineur getDemineur() {
         return demineur;
     }
-
     public void setDemineur(Demineur demineur) {
         this.demineur = demineur;
     }
@@ -290,6 +343,9 @@ public class Map {
     public int getWidthX() {
         return widthX;
     }
+    public int getHeight() {
+        return height;
+    }
 
     public int getLayersCount() {
         return layers.length;
@@ -298,11 +354,7 @@ public class Map {
     public int getNbBombs() {
         return nbBombs;
     }
-
     public void setNbBombs(int nbBombs) {
         this.nbBombs = nbBombs;
-    }
-    public int getHeight() {
-        return height;
     }
 }
