@@ -112,6 +112,8 @@ public class Demineur implements Serializable {
         return bombs;
     }
 
+
+
     public boolean reveal(int x, int y, int z){
         if (nbMineNeigh(x,y,z) == 0 && !getLayers()[z].getTiles()[y][x].isRevealed() && !isBomb(x,y,z)){
             getLayers()[z].getTiles()[y][x].setValue(TileType.VOID);

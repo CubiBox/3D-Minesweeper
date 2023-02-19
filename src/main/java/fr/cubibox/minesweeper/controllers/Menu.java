@@ -4,17 +4,31 @@ import fr.cubibox.minesweeper.MineSweeper;
 import fr.cubibox.minesweeper.level.Map;
 import fr.cubibox.minesweeper.level.Tile;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
+import java.awt.*;
+import java.io.File;
 import java.net.URL;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class Menu implements Initializable {
@@ -30,24 +44,56 @@ public class Menu implements Initializable {
     public Button aboutButton;
     public Button recordButton;
     public Button loadButton;
+    public HBox loadPanel;
+    public VBox struct;
+    public Button openLoadPanel;
+    public Button closeLoadPanel;
+
     private double TILE_SIZE = 64;
     private double A, B, C, D;
 
     private double xOffset = 0;
     private double yOffset = 0;
 
+    private double stageWidth;
+    private double stageHeight;
+
     public static byte menuState;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        menuState = 0;
-        playEasyButton.setOnMouseClicked(this::easyPlay);
-        playMediumButton.setOnMouseClicked(this::mediumPlay);
-        playHardButton.setOnMouseClicked(this::hardPlay);
-        settingButton.setOnMouseClicked(this::setting);
-        customButton.setOnMouseClicked(this::custom);
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Map File");
+        fileChooser.setInitialDirectory(new File(Objects.requireNonNull(MineSweeper.class.getResource("saves")).getFile()));
 
-        loadButton.setOnMouseClicked(this::custom);
+        menuState = 0;
+        playEasyButton.setOnMouseClicked(e -> {play(1);});
+        playMediumButton.setOnMouseClicked(e -> {play(2);});
+        playHardButton.setOnMouseClicked(e -> {play(3);});
+        settingButton.setOnMouseClicked(e-> {setting();});
+        customButton.setOnMouseClicked(e-> {custom();});
+
+        loadPanel.setVisible(!loadPanel.isDisabled());
+        loadButton.setOnMouseClicked(e -> {
+            loadPanel.setDisable(!loadPanel.isDisabled());
+            loadPanel.setVisible(!loadPanel.isDisabled());
+        });
+        closeLoadPanel.setOnMouseClicked(e -> {
+            loadPanel.setDisable(!loadPanel.isDisabled());
+            loadPanel.setVisible(!loadPanel.isDisabled());
+        });
+
+        openLoadPanel.setOnMouseClicked(e -> {
+            fileChooser.showOpenDialog(MineSweeper.stage);
+        });
+
+        openLoadPanel.setOnAction(e -> {
+                    File file = fileChooser.showOpenDialog(MineSweeper.stage);
+                    if (file != null && file.isFile()) {
+                        Custom.previewMap = Map.recover(file);
+                        play(4);
+                    }
+                });
 
         MineSweeper.stage.widthProperty().addListener((obs, oldVal, newVal) -> updatePreview());
         MineSweeper.stage.heightProperty().addListener((obs, oldVal, newVal) -> updatePreview());
@@ -60,48 +106,31 @@ public class Menu implements Initializable {
 
     public void animationThread(){
         new Thread(new Runnable() {
-            boolean exit = false;
             @Override
             public void run() {
-                while (!exit) {
+                while (!(menuState == 2)) {
                     try { Thread.sleep(1000);} catch (InterruptedException ignore) { }
 
                     if (menuState == 1) {
                         updateMap();
                         Platform.runLater(() -> updatePreview());
                     }
-
-                    if (menuState == 2)
-                        exit = true;
                 }
             }
         }).start();
     }
 
-    @FXML
-    private void play() {
+    private void play(int diff){
+        MineSweeper.selectDifficulty = diff;
         menuState = 2;
         MineSweeper.play();
     }
 
-    private void easyPlay(MouseEvent e){
-        MineSweeper.selectDifficulty = 0;
-        play();
-    }
-    private void mediumPlay(MouseEvent e){
-        MineSweeper.selectDifficulty = 1;
-        play();
-    }
-    private void hardPlay(MouseEvent e){
-        MineSweeper.selectDifficulty = 2;
-        play();
-    }
-
-    public void setting(MouseEvent mouseEvent) {
+    public void setting() {
         menuState = 2;
         MineSweeper.setting();
     }
-    public void custom(MouseEvent mouseEvent) {
+    public void custom() {
         menuState = 2;
         MineSweeper.custom();
     }
@@ -181,13 +210,20 @@ public class Menu implements Initializable {
     }
 
     public void updateScreen(){
-        background.setWidth(MineSweeper.stage.getWidth());
-        background.setHeight(MineSweeper.stage.getHeight());
-        base.setMinHeight(MineSweeper.stage.getWidth());
-        base.setMinWidth(MineSweeper.stage.getWidth());
-        TILE_SIZE = (int)(background.getWidth()/30);
+        stageWidth = MineSweeper.stage.getWidth();
+        stageHeight = MineSweeper.stage.getHeight();
 
-        xOffset = background.getWidth() / 2 ;
+        struct.setPrefWidth(stageWidth/2);
+        struct.setPrefHeight(stageHeight/2);
+        struct.setMaxHeight(stageHeight/2);
+
+        background.setWidth(stageWidth);
+        background.setHeight(stageHeight);
+        base.setMinHeight(stageWidth);
+        base.setMinWidth(stageHeight);
+        TILE_SIZE = (int)(stageWidth/30);
+
+        xOffset = stageWidth/2;
         yOffset = -TILE_SIZE/2;
 
         MineSweeper.getAllSprite((int) TILE_SIZE);

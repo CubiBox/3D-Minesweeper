@@ -80,7 +80,6 @@ public class Game implements Initializable {
         particleSprite = new byte[height][width][width];
         currentLayer = 0;
         bombsLeft = map.getNbBombs();
-        setInitialize();
         TILE_SIZE = (int)(MineSweeper.stage.getWidth()/(width + 8));
         xOffset = MineSweeper.stage.getWidth() / 2 ;
         yOffset = TILE_SIZE ;
@@ -88,7 +87,10 @@ public class Game implements Initializable {
         MineSweeper.getAllSprite((int) TILE_SIZE);
         initScreenValue();
 
-        if (!map.isDecorate)
+        if (map.getGenerationSeed() == 0) setInitialize();
+        else setInGame();
+
+        if (map.getGraphicSeed() == 0)
             map.decorateMap(map.getLayers());
 
         canvas.setWidth(MineSweeper.stage.getWidth());
@@ -166,7 +168,7 @@ public class Game implements Initializable {
     }
 
     void save(MouseEvent mouseEvent) {
-        Map.save(map,"map");
+        map.save("map_real");
     }
     private void rotateMinesweeperRight(MouseEvent mouseEvent) {
         map.getDemineur().rotateMinesweeperRight();
@@ -347,7 +349,6 @@ public class Game implements Initializable {
 
                         if (particleSprite[layer][y][x] != 0)
                             drawSprite(gc,"explode",particleSprite[layer][y][x] - 1, posX, posY - TILE_SIZE_HALF);
-
                     }
                 }
             }
@@ -369,9 +370,14 @@ public class Game implements Initializable {
     }
 
     public static void drawSprite(GraphicsContext gc, String str, int var, double posX, double posY){
-        Image img = MineSweeper.tileSprites.get(str)[var].getImage();
-        gc.drawImage(img,posX,posY);
-        spriteCount ++;
+        try {
+            Image img = MineSweeper.tileSprites.get(str)[var].getImage();
+            gc.drawImage(img, posX, posY);
+            spriteCount++;
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+            System.out.println(str + " " + var + "; " + posX + ", " + posY);
+        };
     }
 
     public boolean contains(ArrayList<int[]> bombs, int[] bomb){

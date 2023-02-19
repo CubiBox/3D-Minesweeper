@@ -47,6 +47,7 @@ public class Custom implements Initializable {
         showBombs.setOnMouseClicked(e->{updatePreview();});
 
         backButton.setOnMouseClicked(e->{MineSweeper.mainMenu();});
+        bombsInput.setOnMouseClicked(e->{checkBombs();});
         bombsInput.setOnKeyReleased(e->{checkBombs();});
         bombsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,5,1));
         playButton.setOnMouseClicked(e->{play();});
@@ -71,17 +72,15 @@ public class Custom implements Initializable {
 
 
     private void checkBombs() {
-        System.out.println(bombsInput.getValue());
         if (bombsInput.getValue() < widthSlider.getValue()*widthSlider.getValue()*heightSlider.getValue()*0.8) {
             nbBombs = bombsInput.getValue();
         }
-
         updatePreview();
     }
 
     private void drawMap(GraphicsContext gc) {
         if (showBombs.isSelected())
-            previewMap.getDemineur().setMines(previewMap.getLayers(), 64, -1, -1);
+            previewMap.getDemineur().setMines(previewMap.getLayers(), nbBombs, -1, -1);
 
         double TILE_SIZE_HALF = TILE_SIZE/2;
         for (int layer = previewMap.getLayersCount()-1; layer >= 0; layer--) {
@@ -134,7 +133,11 @@ public class Custom implements Initializable {
         customMenu.setPrefWidth(MineSweeper.stage.getWidth()/2);
         customMenu.setMinHeight(MineSweeper.stage.getHeight());
 
-        bombsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, (int) (widthSlider.getValue()*widthSlider.getValue()*heightSlider.getValue()*0.8),bombsInput.getValue()));
+        bombsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(
+                                            1,
+                                            (int) (widthSlider.getValue()*widthSlider.getValue()*heightSlider.getValue()*0.8),
+                                            bombsInput.getValue()
+                                    ));
 
         GraphicsContext gc = preview.getGraphicsContext2D();
         gc.clearRect(0, 0, preview.getWidth(), preview.getHeight());
@@ -160,7 +163,6 @@ public class Custom implements Initializable {
     public void play() {
         previewMap.getDemineur().clearMines(previewMap.getLayers());
         previewMap.setNbBombs(nbBombs);
-        System.out.println(nbBombs);
         MineSweeper.selectDifficulty = 3;
         MineSweeper.play();
     }

@@ -21,13 +21,27 @@
     -fx-background-color: rgba(3, 151, 176, 0.64);
 }
 
+#loadPanel {
+    -fx-background-color: rgba(64, 111, 140, 0.22);
+    -fx-background-radius : 3 3 3 3;
+    -fx-alignment: CENTER;
+}
+
+#loadPanel #struct{
+    -fx-background-color: rgba(255, 255, 255, 0.44);
+    -fx-background-radius : 10;
+}
+
+#loadPanel .label {
+    -fx-text-fill:WHITE;
+    -fx-font-weight: bold;
+}
 
 .slider .track{
     -fx-padding:2px;
     -fx-background-color: rgb(228, 253, 247);
     -fx-background-radius: 5px;
 }
-
 .slider .thumb{
     -fx-padding:6px;
     -fx-background-color: rgb(228, 253, 247);

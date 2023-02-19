@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -51,5 +52,19 @@
             </VBox>
          </children>
       </VBox>
+      <HBox fx:id="loadPanel" alignment="CENTER" disable="true" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox fx:id="struct" alignment="CENTER" prefHeight="263.0" prefWidth="100.0">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <children>
+                  <Label text="Load save" />
+                  <Button fx:id="closeLoadPanel" mnemonicParsing="false" text="Exit" />
+                  <Button fx:id="openLoadPanel" mnemonicParsing="false" text="Open ..." />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
    </children>
 </AnchorPane>
