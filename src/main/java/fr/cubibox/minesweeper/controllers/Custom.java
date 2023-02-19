@@ -3,11 +3,14 @@ package fr.cubibox.minesweeper.controllers;
 import fr.cubibox.minesweeper.MineSweeper;
 import fr.cubibox.minesweeper.level.Map;
 import fr.cubibox.minesweeper.level.Tile;
+import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
@@ -25,6 +28,7 @@ public class Custom implements Initializable {
 
     public static Map previewMap;
     public static int nbBombs;
+    public VBox customMenu;
     private double TILE_SIZE = 0;
 
     private double A, B, C, D;
@@ -44,20 +48,34 @@ public class Custom implements Initializable {
 
         backButton.setOnMouseClicked(e->{MineSweeper.mainMenu();});
         bombsInput.setOnKeyReleased(e->{checkBombs();});
+        bombsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,5,1));
         playButton.setOnMouseClicked(e->{play();});
+
+        MineSweeper.stage.widthProperty().addListener((obs, oldVal, newVal) -> updatePreview());
+        MineSweeper.stage.heightProperty().addListener((obs, oldVal, newVal) -> updatePreview());
 
         //nbBombs = Integer.parseInt(bombsInput.getText());
 
         updatePreview();
+        launchThread();
+    }
+    public void launchThread(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try { Thread.sleep(50);} catch (InterruptedException ignore) { }
+                Platform.runLater(() -> updatePreview());
+            }
+        }).start();
     }
 
+
     private void checkBombs() {
-        if (String.valueOf(bombsInput.getValue()).matches("[0-9]*")){
-
+        System.out.println(bombsInput.getValue());
+        if (bombsInput.getValue() < widthSlider.getValue()*widthSlider.getValue()*heightSlider.getValue()*0.8) {
+            nbBombs = bombsInput.getValue();
         }
-        else {
 
-        }
         updatePreview();
     }
 
@@ -75,11 +93,9 @@ public class Custom implements Initializable {
                     Tile tile = previewMap.getLayer(layer).getTile(x, y);
 
                     if (showBombs.isSelected()) {
-                        if (tile.isBomb()) {
-                            //gc.drawImage(tileSprite.getImage(), posX, posY);
+                        if (tile.isBomb())
                             gc.drawImage(MineSweeper.tileSprites.get("bomb")[2].getImage(),posX, posY);
-                            //gc.drawImage(MineSweeper.tileSprites.get("showTnt")[0].getImage(), posX, posY);
-                        }
+
                         else {
                             if (layer == previewMap.getLayersCount()-1)
                                 gc.drawImage(MineSweeper.tileSprites.get("bases")[0].getImage(), posX, posY);
@@ -89,8 +105,8 @@ public class Custom implements Initializable {
                                 gc.drawImage(MineSweeper.tileSprites.get("bases")[2].getImage(), posX, posY);
                         }
                     }
-                    else {
 
+                    else {
                         //draw cube
                         ImageView tileSprite = MineSweeper.tileSprites.get(tile.getTexture())[tile.getGraphic().getVariation()];
                         if (tileSprite != null) {
@@ -113,12 +129,16 @@ public class Custom implements Initializable {
     }
 
     public void updatePreview(){
-        preview.setWidth((MineSweeper.stage.getWidth()/4)*3);
+        preview.setWidth(MineSweeper.stage.getWidth());
         preview.setHeight(MineSweeper.stage.getHeight());
+        customMenu.setPrefWidth(MineSweeper.stage.getWidth()/2);
+        customMenu.setMinHeight(MineSweeper.stage.getHeight());
+
+        bombsInput.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, (int) (widthSlider.getValue()*widthSlider.getValue()*heightSlider.getValue()*0.8),bombsInput.getValue()));
 
         GraphicsContext gc = preview.getGraphicsContext2D();
         gc.clearRect(0, 0, preview.getWidth(), preview.getHeight());
-        gc.setFill(Color.rgb(10,165,200));
+        gc.setFill(Color.rgb(10,165,200,0));
         gc.fillRect(0, 0, preview.getWidth(), preview.getHeight());
 
         TILE_SIZE = (int)(preview.getWidth()/(widthSlider.getValue() + 8));
@@ -131,7 +151,7 @@ public class Custom implements Initializable {
         Custom.previewMap = Map.voidMap((int) widthSlider.getValue(), (int) heightSlider.getValue());
         previewMap.decorateMap(previewMap.getLayers());
 
-        xOffset =  preview.getWidth()/2 ;
+        xOffset =  preview.getWidth()/2 + customMenu.getWidth()/2 ;
         yOffset = TILE_SIZE ;
 
         drawMap(gc);
@@ -140,6 +160,7 @@ public class Custom implements Initializable {
     public void play() {
         previewMap.getDemineur().clearMines(previewMap.getLayers());
         previewMap.setNbBombs(nbBombs);
+        System.out.println(nbBombs);
         MineSweeper.selectDifficulty = 3;
         MineSweeper.play();
     }

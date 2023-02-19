@@ -19,6 +19,12 @@ public class MapLayer {
         }
     }
 
+    public MapLayer(Tile[][] tiles) {
+        this.width = tiles.length;
+        this.height = tiles.length;
+        this.tiles = tiles;
+    }
+
     public Tile[][] getTiles() {
         return tiles;
     }

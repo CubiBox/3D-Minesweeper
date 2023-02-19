@@ -1,0 +1,31 @@
+"width":10,
+"height":10,
+"nbBombs":10,
+"graphicSeed":6527854652988965,
+"generationSeed":65278546528965,
+"MapContent":[
+    [
+        [
+            {true,false},
+            {true,false},
+            {true,false}
+        ],
+        [
+            {true,false},
+            {true,false},
+            {true,false}
+        ]
+    ],
+    [
+        [
+            {true,false},
+            {true,false},
+            {true,false}
+        ],        
+        [
+            {true,false},
+            {true,false},
+            {true,false}
+        ]
+    ]
+]

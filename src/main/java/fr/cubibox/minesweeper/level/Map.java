@@ -9,10 +9,11 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Map {
-    @Serial
-    private static final long serialVersionUID = 1350092881346723535L;
     private Demineur demineur;
     private final MapLayer[] layers;
     private final int widthX;
@@ -20,6 +21,8 @@ public class Map {
     private final int widthY;
     private int nbBombs;
     public boolean isDecorate;
+
+    private long graphicSeed;
 
     public Map(int width, int height) {
         this.widthX = width;
@@ -31,13 +34,17 @@ public class Map {
             layers[i] = new MapLayer(widthX,widthY);
     }
 
-    public Map(int width, int height, int nbBombs, boolean isDecorate, MapLayer[] layers) {
+    public Map(long graphicSeed, long generationSeed, int width, int height, int nbBombs, MapLayer[] layers) {
         this.widthX = width;
         this.widthY = width;
         this.height= height;
         this.nbBombs = nbBombs;
-        this.isDecorate = isDecorate;
         this.layers = layers;
+        this.graphicSeed = graphicSeed;
+
+        this.demineur = new Demineur(layers, generationSeed, nbBombs);
+
+        decorateMap(layers,graphicSeed);
     }
 
 
@@ -62,8 +69,13 @@ public class Map {
     }
 
     public void decorateMap(MapLayer[] layers) {
+        decorateMap(layers,new Random().nextLong(Long.MAX_VALUE));
+    }
+
+    public void decorateMap(MapLayer[] layers, long seed) {
         this.isDecorate = true;
-        Random rand = new Random();
+        Random rand = new Random(seed);
+        this.graphicSeed = seed;
         int deepStoneLayer = height - height/3;
 
         int r = rand.nextInt(2,((height*widthX)/16 > 2 ? (height*widthX)/16 : 3));
@@ -139,7 +151,7 @@ public class Map {
             if (
                     x >= 0 && x <= widthX &&
                     y >= 0 && y <= widthY &&
-                    z >= 0 && z <= height -1 &&
+                    z >= 0 && z <= height-1 &&
 
                     x >= lode[0] - size && x <= lode[0] + size &&
                     y >= lode[1] - size && y <= lode[1] + size &&
@@ -156,6 +168,10 @@ public class Map {
             }
         }
         return false;
+    }
+
+    public void applyHeightMap(int height){
+        applyHeightMap(new Random().nextInt(Integer.MAX_VALUE),height);
     }
 
     public void applyHeightMap(int seed, int height){
@@ -191,144 +207,102 @@ public class Map {
             }
     }
 
-    /**
-     * @param map
-     *
-     *     int height
-     *     int widthX;
-     *     int widthY;
-     *     int nbBombs;
-     *     boolean isDecorate;
-     *     MapLayer[] layers
-     *          Tile[][] tiles
-     *              TileType value;
-     *              boolean isRevealed;
-     *              boolean isBomb;
-     *              byte nbMine;
-     *              boolean isMarked;
-     *              Graphic graphic;
-     *                  byte variation;
-     *                  String texture;
-     *                  Decoration decoration;
-     *                      String folder;
-     *                      String decoration;
-     *                      byte variation;
-     *                      byte vx;
-     *                      byte vy;
-     *
-     */
-    public static void save(Map map) {
+    public static void save(Map map, String name) {
         try {
-            FileWriter file = new FileWriter("saves/map.ser");
+            FileWriter file = new FileWriter("saves/"+name+".ser");
             file.write(map.extractData());
             file.close();
         }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        //recover(":[10,10,10,true];");
+        catch (IOException ignored) { }
     }
 
-    public static Map recover(String str) {
+    public static Map recover(String name) {
+        StringBuilder input = new StringBuilder();
+        try{
+            Scanner reader = new Scanner(new File("saves/"+name+".ser"));
+            while(reader.hasNextLine())
+                input.append(reader.nextLine()).append("\n");
+        }
+        catch (Exception ignored){}
+
+        String str = input.toString();
+
+        int width = 0;
+        int height = 0;
+        int nbBombs = 0;
+        long graphicSeed = 0;
+        long generationSeed = 0;
+
         //header
-        String[] content = str.split(";")[0].split("]|\\[")[1].split(",");
-        int width = Integer.parseInt(content[0]);
-        int height = Integer.parseInt(content[1]);
-        int nbBombs = Integer.parseInt(content[2]);
-        boolean isDecorate = Boolean.parseBoolean(content[3]);
+        Matcher head = Pattern.compile("\"(\\w+)\":(\\d+),").matcher(str);
 
-        System.out.println(width + "; " + height + "; " + nbBombs + "; " + isDecorate);
-
-
-        ArrayList<Byte> statusPile = new ArrayList<>();
-
-        //maplayers
+        while (head.find()) {
+            switch (head.group(1)){
+                case "width" -> width = Integer.parseInt(head.group(2));
+                case "height" -> height = Integer.parseInt(head.group(2));
+                case "nbBombs" -> nbBombs = Integer.parseInt(head.group(2));
+                case "generationSeed" -> generationSeed = Long.parseLong(head.group(2));
+                case "graphicSeed" -> graphicSeed = Long.parseLong(head.group(2));
+                default -> {}
+            }
+        }
 
         MapLayer[] layers = new MapLayer[height];
+        Matcher layersRegex = Pattern.compile("\\[(\\s*\\[(\\s*\\{\\w*,\\w*},?\\s*)*],?\\s*)*],?").matcher(str);
 
+        for (int z = 0; layersRegex.find(); z++) {
+            Matcher tilesRegex = Pattern.compile("\\[(\\s*\\{\\w*,\\w*},?\\s*)*],?").matcher(str);
 
-        String[] strTilesTab = str.split("\"Tile\\[]\\[]\":");
-
-        int mapLayerIndex = 0;
-        for (String strTab : strTilesTab){
             Tile[][] tiles = new Tile[width][width];
+            for (int y = 0; tilesRegex.find() && y<width; y++) {
+                Matcher tile = Pattern.compile("\\{(\\w*),(\\w*)},?").matcher(tilesRegex.group());
 
-            String[] strTiles = strTab.split("\"Tile\\[]\":");
-            int tileIndexY = 0;
-            for (String strTile : strTiles){
-                String[] strTileAttributs = strTile.split("\"Tile\":");
-
-                int tileIndexX = 0;
-                for (String tileContent :strTileAttributs) {
-                    tiles[tileIndexY][tileIndexX] = extractTile(tileContent);
-                    tileIndexX ++;
+                System.out.println(tilesRegex.group());
+                for (int x = 0; tile.find(); x++) {
+                    tiles[y][x] = new Tile(Boolean.parseBoolean(tile.group(1)), Boolean.parseBoolean(tile.group(2)));
                 }
-                tileIndexY ++;
             }
-            layers[mapLayerIndex].setTiles(tiles);
-            mapLayerIndex ++;
+            layers[z] = new MapLayer(tiles);
         }
-
-
-        return new Map(width,height, nbBombs, true,layers);
-    }
-
-
-    public static Tile extractTile(String str){
-        return null;
+        return new Map(graphicSeed, generationSeed, width, height, nbBombs, layers);
     }
 
     public String extractData(){
         StringBuilder output = new StringBuilder();
+        StringBuilder head = new StringBuilder();
         StringBuilder mapLayer = new StringBuilder();
         StringBuilder tilesY;   //Tile[][]
         StringBuilder tilesX;   //Tile[]
-        StringBuilder tile;     //Tile
+        StringBuilder tileStr;  //Tile
+        int indent = 0;
 
-        String head = "\"head\":[" + widthX + "," + height + "," + nbBombs + "," + isDecorate +"],\n";
+        head
+                .append("\"width\":").append(widthX).append(",\n")
+                .append("\"height\":").append(height).append(",\n")
+                .append("\"nbBombs\":").append(nbBombs).append(",\n")
+                .append("\"generationSeed\":").append(demineur.getSeed()).append(",\n")
+                .append("\"graphicSeed\":").append(graphicSeed).append(",\n");
 
         mapLayer.append("\"MapLayer\":[\n");
         for (int z = 0; z < height; z ++){
-            tilesY = new StringBuilder("\t\"Tile[][]\":[\n");
+            tilesY = new StringBuilder("\t".repeat(Math.max(0, z==0 ?++indent:indent)) + "[\n");
             for (int y = 0; y < widthY; y ++){
-                tilesX = new StringBuilder("\t\t\"Tile[]\":[\n");
+                tilesX = new StringBuilder("\t".repeat(Math.max(0, y==0 ?++indent:indent)) + "[\n");
                 for (int x = 0; x < widthX; x ++){
-                    String indent = "\t\t\t";
-                    tile = new StringBuilder(indent + "\"Tile\":{\n");
-                    tile.append(indent).append("\ttest");
-                    tilesX
-                            .append(tile)
-                            .append("\n")
-                            .append(indent)
-                            .append(x + 1 >= widthX ? "}" : "},")
-                            .append('\n');
+                    tileStr = new StringBuilder("\t".repeat(Math.max(0, x==0 ?++indent:indent)) + "{");
+                    Tile tile = layers[z].getTile(x,y);
+                    tileStr.append(tile.isRevealed()).append(",").append(tile.isMarked());
+
+                    tilesX.append(tileStr).append(x+1 >= widthX ? "}\n" : "},\n");
                 }
-                tilesY.append(tilesX).append("\t\t").append(y+1>=widthY ? "]" : "],").append('\n');
+                tilesY.append(tilesX).append("\t".repeat(Math.max(0, --indent))).append(y+1>=widthY ? "]" : "],").append('\n');
             }
-            mapLayer.append(tilesY).append("\t").append(z+1>=height ? "]" : "],").append('\n');
+            mapLayer.append(tilesY).append("\t".repeat(Math.max(0, --indent))).append(z+1>=height ? "]" : "],").append('\n');
         }
         mapLayer.append(']');
-
-        output.append(head);
-        output.append(mapLayer);
-        return output.toString();
+        return output.append(head).append(mapLayer).toString();
     }
 
-    public static ArrayList extractArray(String type, String str) {
-        Object[] tab = switch (type) {
-            case "Tile" : yield new Tile[10];
-            case "MapLayer" : yield new MapLayer[10];
-            default: yield null;
-        };
-        return null;
-    }
-
-
-    public void applyHeightMap(int height){
-        applyHeightMap(new Random().nextInt(Integer.MAX_VALUE),height);
-    }
 
     public Demineur getDemineur() {
         return demineur;
@@ -356,5 +330,23 @@ public class Map {
     }
     public void setNbBombs(int nbBombs) {
         this.nbBombs = nbBombs;
+    }
+
+    public static void main(String[] args) {
+        Map easyMap = Map.voidMap(4,4);
+        easyMap.setNbBombs(5);
+
+        MineSweeper.getAllSprite(64);
+        easyMap.decorateMap(easyMap.getLayers());
+        easyMap.setDemineur(new Demineur(easyMap.getLayers()));
+        easyMap.getDemineur().setMines(easyMap.getLayers(), easyMap.nbBombs, 84,36);
+
+        save(easyMap, "test");
+
+        Map map = recover("test");
+
+        save(map, "test1");
+
+        System.out.println(map.equals(easyMap));
     }
 }

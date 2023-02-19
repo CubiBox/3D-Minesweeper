@@ -18,10 +18,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class Menu implements Initializable {
-    public Button playButton;
     public Button settingButton;
     public Button customButton;
-    public Button actu;
     public Canvas background;
     public ScrollPane base;
 
@@ -31,6 +29,7 @@ public class Menu implements Initializable {
     public Button playHardButton;
     public Button aboutButton;
     public Button recordButton;
+    public Button loadButton;
     private double TILE_SIZE = 64;
     private double A, B, C, D;
 
@@ -47,6 +46,8 @@ public class Menu implements Initializable {
         playHardButton.setOnMouseClicked(this::hardPlay);
         settingButton.setOnMouseClicked(this::setting);
         customButton.setOnMouseClicked(this::custom);
+
+        loadButton.setOnMouseClicked(this::custom);
 
         MineSweeper.stage.widthProperty().addListener((obs, oldVal, newVal) -> updatePreview());
         MineSweeper.stage.heightProperty().addListener((obs, oldVal, newVal) -> updatePreview());

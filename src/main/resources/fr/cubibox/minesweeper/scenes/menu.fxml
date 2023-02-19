@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #0AA4C7;" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.cubibox.minesweeper.controllers.Menu">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #0AA4C7;" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.cubibox.minesweeper.controllers.Menu">
    <children>
       <ScrollPane fx:id="base" hbarPolicy="NEVER" prefHeight="400.0" prefWidth="600.0" vbarPolicy="NEVER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <content>
@@ -42,6 +42,7 @@
                               <Button id="menuButton" fx:id="settingButton" minWidth="200.0" mnemonicParsing="false" text="Setting" />
                               <Button id="menuButton" fx:id="recordButton" minWidth="200.0" mnemonicParsing="false" text="Records" />
                               <Button id="menuButton" fx:id="aboutButton" minWidth="200.0" mnemonicParsing="false" text="About this beautiful game" />
+                              <Button id="menuButton" fx:id="loadButton" minWidth="200.0" mnemonicParsing="false" text="Load save" />
                            </children>
                         </VBox>
                      </children>

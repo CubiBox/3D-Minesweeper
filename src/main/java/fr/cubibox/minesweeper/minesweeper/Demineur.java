@@ -9,6 +9,7 @@ import java.util.Random;
 public class Demineur implements Serializable {
     private int size;
     private int height;
+    private long seed;
 
     public Demineur(MapLayer[] layers) {
         this.height = layers.length;
@@ -20,7 +21,7 @@ public class Demineur implements Serializable {
                     layers[z].getTiles()[y][x].setValue(TileType.CUBE);
     }
 
-    public Demineur(MapLayer[] layers, int nbBombs) {
+    public Demineur(MapLayer[] layers, long seed, int nbBombs) {
         this.height = layers.length;
         this.size = layers[0].getWidth();
 
@@ -29,11 +30,22 @@ public class Demineur implements Serializable {
                 for (int x = 0; x < size; x++)
                     layers[z].getTiles()[y][x].setValue(TileType.CUBE);
 
-        setMines(layers,nbBombs, -1, -1);
+        setMines(layers, nbBombs, seed);
     }
 
     public void setMines(MapLayer[] layers, int nbBombs, int posX, int posY){
-        Random rand = new Random();
+        long seed = new Random().nextLong(Long.MAX_VALUE)/10000*10000 + posX * 100L + posY;
+        setMines(layers, nbBombs, seed);
+    }
+
+    public void setMines(MapLayer[] layers, int nbBombs, long seed){
+        this.seed = seed;
+        Random rand = new Random(seed);
+        int posY = (int) Math.abs(seed%100);
+        int posX = (int) Math.abs(seed%10000-posY)/100;
+
+        System.out.println(seed + "; " + posX + "; " + posY);
+
         int x,y,z;
         while (nbBombs != 0) {
             x = rand.nextInt(0 ,size);
@@ -158,4 +170,11 @@ public class Demineur implements Serializable {
         return Game.map.getLayers();
     }
 
+    public long getSeed() {
+        return seed;
+    }
+
+    public void setSeed(long seed) {
+        this.seed = seed;
+    }
 }

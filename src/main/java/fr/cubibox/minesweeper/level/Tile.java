@@ -28,6 +28,15 @@ public class Tile implements Serializable {
         this.isMarked = false;
         this.graphic = new Graphic(value.getId());
     }
+    public Tile(boolean isRevealed, boolean isMarked) {
+        this.value = TileType.VOID;
+        this.isRevealed = isRevealed;
+        this.isBomb = false;
+        this.nbMine = 0;
+        this.isMarked = isMarked;
+        this.graphic = new Graphic(value.getId());
+    }
+
 
     public String getTexture() {
         return graphic.getTexture();
@@ -90,7 +99,7 @@ public class Tile implements Serializable {
 
     @Override
     public String toString() {
-        return "[" + value + ']';
+        return "[" + value + "; " + isRevealed + "; " + isMarked + "]";
     }
 
     public boolean hasDecoration() {
