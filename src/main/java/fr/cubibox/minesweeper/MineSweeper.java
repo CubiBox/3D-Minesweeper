@@ -38,15 +38,15 @@ public class MineSweeper extends Application {
 
     public static void play(){
         map = switch (selectDifficulty) {
-            case 0 :
+            case 1 :
                 Map easyMap = Map.voidMap(5,5);
                 easyMap.setNbBombs(10);
                 yield easyMap;
-            case 1 :
+            case 2 :
                 Map mediumMap = Map.voidMap(8,10);
                 mediumMap.setNbBombs(50);
                 yield mediumMap;
-            case 2 :
+            case 3 :
                 Map hardMap = Map.voidMap(15,15);
                 hardMap.setNbBombs(180);
                 yield hardMap;

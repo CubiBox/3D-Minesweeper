@@ -163,7 +163,7 @@ public class Custom implements Initializable {
     public void play() {
         previewMap.getDemineur().clearMines(previewMap.getLayers());
         previewMap.setNbBombs(nbBombs);
-        MineSweeper.selectDifficulty = 3;
+        MineSweeper.selectDifficulty = 0;
         MineSweeper.play();
     }
 }

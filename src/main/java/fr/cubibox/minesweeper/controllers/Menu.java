@@ -64,7 +64,7 @@ public class Menu implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Map File");
-        fileChooser.setInitialDirectory(new File(Objects.requireNonNull(MineSweeper.class.getResource("saves")).getFile()));
+        fileChooser.setInitialDirectory(new File("saves"));
 
         menuState = 0;
         playEasyButton.setOnMouseClicked(e -> {play(1);});

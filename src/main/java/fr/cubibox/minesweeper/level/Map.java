@@ -219,15 +219,14 @@ public class Map {
         for (int z = 0; z < height; z ++){
             tilesY = new StringBuilder("\t".repeat(Math.max(0, z==0 ?++indent:indent)) + "[\n");
             for (int y = 0; y < widthY; y ++){
-                tilesX = new StringBuilder("\t".repeat(Math.max(0, y==0 ?++indent:indent)) + "[\n");
+                tilesX = new StringBuilder("\t".repeat(Math.max(0, y==0 ?++indent:indent)) + "[");
                 for (int x = 0; x < widthX; x ++){
-                    tileStr = new StringBuilder("\t".repeat(Math.max(0, x==0 ?++indent:indent)) + "{");
                     Tile tile = layers[z].getTile(x,y);
-                    tileStr.append(tile.isRevealed()).append(",").append(tile.isMarked());
-
-                    tilesX.append(tileStr).append(x+1 >= widthX ? "}\n" : "},\n");
+                    tileStr = new StringBuilder("{");
+                    tileStr.append(tile.isRevealed()?"1":"0").append(",").append(tile.isMarked()?"1":"0");
+                    tilesX.append(tileStr).append(x+1 >= widthX ? "}" : "},");
                 }
-                tilesY.append(tilesX).append("\t".repeat(Math.max(0, --indent))).append(y+1>=widthY ? "]" : "],").append('\n');
+                tilesY.append(tilesX).append(y+1>=widthY ? "]" : "],").append('\n');
             }
             mapLayer.append(tilesY).append("\t".repeat(Math.max(0, --indent))).append(z+1>=height ? "]" : "],").append('\n');
         }
@@ -275,23 +274,17 @@ public class Map {
             }
 
             MapLayer[] layers = new MapLayer[height];
-            Matcher layersRegex = Pattern.compile("\\[(\\s*\\[(\\s*\\{\\w*,\\w*},?\\s*)*],?\\s*)*],?").matcher(str);
+            Matcher layersRegex = Pattern.compile("\\[(\\s*\\[(\\s*\\{\\d,\\d},?\\s*)*],?\\s*)*],?").matcher(str);
 
             for (int z = 0; layersRegex.find(); z++) {
-                Matcher tilesRegex = Pattern.compile("\\[(\\s*\\{\\w*,\\w*},?\\s*)*],?").matcher(layersRegex.group());
-                System.out.println("-----------------------");
-
-                System.out.println(z);
-                System.out.println(layersRegex.group());
-                System.out.println("-----------------------");
+                Matcher tilesRegex = Pattern.compile("\\[(\\s*\\{\\d,\\d},?\\s*)*],?").matcher(layersRegex.group());
 
                 Tile[][] tiles = new Tile[width][width];
                 for (int y = 0; tilesRegex.find() && y<width; y++) {
-                    Matcher tile = Pattern.compile("\\{(\\w*),(\\w*)},?").matcher(tilesRegex.group());
+                    Matcher tile = Pattern.compile("\\{(\\d),(\\d)},?").matcher(tilesRegex.group());
 
-                    for (int x = 0; tile.find(); x++) {
-                        tiles[y][x] = new Tile(Boolean.parseBoolean(tile.group(1)), Boolean.parseBoolean(tile.group(2)));
-                    }
+                    for (int x = 0; tile.find(); x++)
+                        tiles[y][x] = new Tile(tile.group(1).equals("1"), tile.group(2).equals("1"));
                 }
                 layers[z] = new MapLayer(tiles);
             }
@@ -304,7 +297,6 @@ public class Map {
                     for (int x = 0; x < width; x++)
                         if (layers[z].getTile(x, y).isRevealed()) {
                             layers[z].getTile(x, y).setValue(TileType.VOID);
-
                             byte bombs = 0;
                             for (int k = -1; k <= 1; k++)
                                 for (int i = -1; i <= 1; i++)

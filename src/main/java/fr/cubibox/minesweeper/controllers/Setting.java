@@ -36,9 +36,6 @@ public class Setting implements Initializable {
         MineSweeper.mainMenu();
     }
 
-    public void play(ActionEvent actionEvent) {
-        MineSweeper.play();
-    }
 
     public void lowUpdateCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
